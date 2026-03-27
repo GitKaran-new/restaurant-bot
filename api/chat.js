@@ -5,27 +5,37 @@ export default async function handler(req, res) {
 
   const { messages, systemPrompt } = req.body;
 
+  // Convert messages from Gemini format to OpenAI format
+  const formattedMessages = messages.map(msg => ({
+    role: msg.role === 'model' ? 'assistant' : msg.role,
+    content: msg.parts[0].text
+  }));
+
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: messages,
-          generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
-        })
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...formattedMessages
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      })
+    });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'Gemini API error' });
+      return res.status(500).json({ error: data.error?.message || 'Groq API error' });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that.";
+    const text = data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
     res.status(200).json({ text });
 
   } catch (err) {
