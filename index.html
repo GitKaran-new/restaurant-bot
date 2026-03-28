@@ -65,6 +65,24 @@
     .order-count { background: var(--green); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; }
     .view-order-btn { font-size: 12px; color: var(--green-dark); font-weight: 500; cursor: pointer; background: none; border: none; text-decoration: underline; font-family: 'DM Sans', sans-serif; }
 
+    /* ── ORDER SUCCESS BANNER ── */
+    .order-success-banner {
+      display: none; padding: 14px 16px; background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);
+      color: white; font-size: 13px; align-items: center; justify-content: space-between;
+      border-radius: 14px; margin: 8px 12px; animation: slideDown 0.4s ease-out;
+    }
+    .order-success-banner.visible { display: flex; }
+    .order-success-left { display: flex; align-items: center; gap: 10px; }
+    .order-success-icon { font-size: 22px; animation: popIn 0.5s ease-out; }
+    .order-success-text { line-height: 1.4; }
+    .order-success-id { font-weight: 500; font-size: 14px; }
+    .order-success-sub { font-size: 11px; opacity: 0.85; }
+    .order-status-live { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; margin-top: 4px; }
+    .order-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 1.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+    @keyframes slideDown { from { transform:translateY(-10px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    @keyframes popIn { from { transform:scale(0.5); } to { transform:scale(1); } }
+
     .quick-replies { display: flex; gap: 6px; padding: 8px 12px 4px; overflow-x: auto; scrollbar-width: none; }
     .quick-replies::-webkit-scrollbar { display: none; }
     .qr-btn { font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 13px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
@@ -91,7 +109,22 @@
     .order-item-price { color: var(--green-dark); font-weight: 500; }
     .order-total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-strong); font-size: 15px; font-weight: 500; }
     .order-total-price { color: var(--green); font-size: 18px; }
-    .close-modal-btn { width: 100%; margin-top: 16px; padding: 12px; background: var(--green); color: white; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .close-modal-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--bg); color: var(--text); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-strong); }
+    .place-order-btn {
+      width: 100%; margin-top: 16px; padding: 14px; border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer;
+      background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%); color: white;
+      transition: all 0.2s; box-shadow: 0 4px 14px rgba(29,158,117,0.3);
+    }
+    .place-order-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(29,158,117,0.4); }
+    .place-order-btn:active { transform: translateY(0); }
+    .place-order-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .place-order-btn .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .table-input-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+    .table-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; border-radius: 10px; border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text); outline: none; }
+    .table-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
+    .table-input-label { font-size: 13px; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -127,7 +160,7 @@
       </svg>
     </button>
   </div>
-  <div class="powered-by">Powered by Gemini AI · Built for Indian restaurants</div>
+  <div class="powered-by">Powered by Gemini AI · Built for Indian restaurants · <a href="dashboard.html" target="_blank" style="color:var(--text-hint);text-decoration:none;border-bottom:0.5px dashed var(--text-hint);">Dashboard ↗</a></div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -136,7 +169,12 @@
     <div class="modal-title">Your Order</div>
     <div id="modalItems"></div>
     <div class="order-total-row"><span>Total</span><span class="order-total-price" id="modalTotal">₹0</span></div>
-    <button class="close-modal-btn" onclick="closeModal()">Done</button>
+    <div class="table-input-row">
+      <span class="table-input-label">Table No.</span>
+      <input class="table-input" id="modalTableInput" type="number" min="1" placeholder="e.g. 5" />
+    </div>
+    <button class="place-order-btn" id="placeOrderBtn" onclick="submitOrder()">🍽 Place Order</button>
+    <button class="close-modal-btn" onclick="closeModal()">Continue Browsing</button>
   </div>
 </div>
 
@@ -176,6 +214,8 @@
   let order = [];
   let history = [];
   let tableNumber = null;
+  let placedOrderId = null;
+  let orderStatusPollInterval = null;
 
   function buildSystemPrompt() {
     const menuText = Object.entries(MENU).map(([cat, items]) =>
@@ -267,6 +307,7 @@ Rules:
   }
 
   function openModal() {
+    if (order.length === 0) return;
     const total = order.reduce((s, i) => s + i.price * i.qty, 0);
     document.getElementById('modalItems').innerHTML = order.map(i => `
       <div class="order-item-row">
@@ -274,6 +315,13 @@ Rules:
         <div class="order-item-price">₹${i.price * i.qty}</div>
       </div>`).join('');
     document.getElementById('modalTotal').textContent = '₹' + total;
+    // Pre-fill table number if known
+    const tableInput = document.getElementById('modalTableInput');
+    if (tableNumber) tableInput.value = tableNumber;
+    // Reset button
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = false;
+    btn.innerHTML = '🍽 Place Order';
     document.getElementById('modalOverlay').classList.add('open');
   }
 
@@ -281,6 +329,115 @@ Rules:
     if (!e || e.target === document.getElementById('modalOverlay')) {
       document.getElementById('modalOverlay').classList.remove('open');
     }
+  }
+
+  // ── SUBMIT ORDER TO BACKEND ────────────────────────────────
+  async function submitOrder() {
+    if (order.length === 0) return;
+
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Placing order...';
+
+    // Read table number from modal input
+    const tableInput = document.getElementById('modalTableInput');
+    if (tableInput.value) {
+      tableNumber = tableInput.value;
+      document.getElementById('tableBadge').textContent = 'Table ' + tableNumber;
+    }
+
+    const total = order.reduce((s, i) => s + i.price * i.qty, 0);
+    const payload = {
+      items: order.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+      total,
+      table: tableNumber || '?'
+    };
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to place order');
+
+      placedOrderId = data.order.id;
+
+      // Close modal
+      document.getElementById('modalOverlay').classList.remove('open');
+
+      // Show success banner in chat
+      showOrderSuccessBanner(data.order);
+
+      // Add confirmation message in chat
+      addMessage('bot', `✅ Order #${data.order.id} has been placed successfully!\nYour food is being prepared. You can track the status right here.`);
+      setQuickReplies(['Order status', 'Add more items', 'Call waiter']);
+
+      // Clear current order
+      order = [];
+      refreshOrderUI();
+
+      // Start polling for status updates
+      startOrderStatusPolling(data.order.id);
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '🍽 Place Order';
+      addMessage('bot', '❌ ' + (err.message || 'Could not place order. Please try again.'));
+    }
+  }
+
+  // ── ORDER SUCCESS BANNER ────────────────────────────────────
+  function showOrderSuccessBanner(orderData) {
+    // Remove old banner if any
+    const old = document.querySelector('.order-success-banner');
+    if (old) old.remove();
+
+    const banner = document.createElement('div');
+    banner.className = 'order-success-banner visible';
+    banner.id = 'orderBanner';
+    banner.innerHTML = `
+      <div class="order-success-left">
+        <div class="order-success-icon">🎉</div>
+        <div class="order-success-text">
+          <div class="order-success-id">Order #${orderData.id} · Table ${orderData.table}</div>
+          <div class="order-success-sub">${orderData.items.reduce((s,i) => s + i.qty, 0)} items · ₹${orderData.total}</div>
+          <div class="order-status-live"><span class="order-status-dot"></span><span id="liveStatus">Sent to kitchen</span></div>
+        </div>
+      </div>`;
+    const chatArea = document.getElementById('chatArea');
+    chatArea.insertBefore(banner, chatArea.firstChild.nextSibling);
+  }
+
+  // ── POLL ORDER STATUS ──────────────────────────────────────
+  function startOrderStatusPolling(orderId) {
+    if (orderStatusPollInterval) clearInterval(orderStatusPollInterval);
+    orderStatusPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        const myOrder = (data.orders || []).find(o => o.id === orderId);
+        if (!myOrder) return;
+
+        const statusEl = document.getElementById('liveStatus');
+        if (!statusEl) return;
+
+        const statusMap = {
+          'new': '🟡 Sent to kitchen',
+          'preparing': '🔥 Being prepared',
+          'ready': '✅ Ready to serve!',
+          'served': '🎉 Served — Enjoy!'
+        };
+        statusEl.textContent = statusMap[myOrder.status] || myOrder.status;
+
+        if (myOrder.status === 'served') {
+          clearInterval(orderStatusPollInterval);
+          orderStatusPollInterval = null;
+        }
+      } catch(e) { /* silent */ }
+    }, 4000);
   }
 
   function getTime() {
@@ -335,6 +492,34 @@ Rules:
     const text = input.value.trim();
     if (!text) return;
 
+    // Intercept "Place order" / "Confirm order" to trigger submission
+    if ((text.toLowerCase().includes('place order') || text.toLowerCase() === 'confirm order') && order.length > 0) {
+      addMessage('user', text);
+      input.value = '';
+      openModal();
+      return;
+    }
+
+    // Intercept "Order status" to show current status
+    if (text.toLowerCase().includes('order status') && placedOrderId) {
+      addMessage('user', text);
+      input.value = '';
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        const myOrder = (data.orders || []).find(o => o.id === placedOrderId);
+        if (myOrder) {
+          const statusEmoji = { new: '🟡', preparing: '🔥', ready: '✅', served: '🎉' };
+          const statusText = { new: 'Sent to kitchen', preparing: 'Being prepared', ready: 'Ready to serve!', served: 'Served — Enjoy!' };
+          addMessage('bot', `${statusEmoji[myOrder.status] || '📋'} Order #${myOrder.id} Status: ${statusText[myOrder.status] || myOrder.status}\nTable ${myOrder.table} · ${myOrder.items.reduce((s,i)=>s+i.qty,0)} items · ₹${myOrder.total}`);
+          setQuickReplies(myOrder.status === 'served' ? ['Thank you!', 'Order more'] : ['Refresh status', 'Need help']);
+        } else {
+          addMessage('bot', 'Sorry, I couldn\'t find your order. Please try again.');
+        }
+      } catch { addMessage('bot', 'Unable to check status right now.'); }
+      return;
+    }
+
     const tableMatch = text.match(/table\s*(\d+)/i);
     if (tableMatch) {
       tableNumber = tableMatch[1];
@@ -363,11 +548,13 @@ Rules:
       } else if (lower.includes('starter')) {
         setQuickReplies(['Order Paneer Tikka', 'Order Spring Rolls', 'Skip to mains']);
       } else if (newItems.length > 0) {
-        setQuickReplies(['Add more items', 'Add naan', 'Add lassi', 'Get the bill']);
-      } else if (lower.includes('bill') || lower.includes('total')) {
-        setQuickReplies(['Confirm order', 'Add more items']);
+        setQuickReplies(['Add more items', 'Add naan', 'Add lassi', 'Place order ✓']);
+      } else if (lower.includes('bill') || lower.includes('total') || lower.includes('confirm')) {
+        setQuickReplies(['Place order ✓', 'Add more items']);
       } else if (lower.includes('recommend') || lower.includes('popular') || lower.includes('best')) {
         setQuickReplies(['Order Dal Makhani', 'Order Paneer Tikka', 'Order Veg Biryani']);
+      } else if (lower.includes('status') && placedOrderId) {
+        setQuickReplies(['Order status', 'Need help']);
       }
 
     } catch (err) {
