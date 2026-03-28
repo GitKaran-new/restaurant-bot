@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/r/:slug", "destination": "/index.html" },
+    { "source": "/dashboard/:slug", "destination": "/dashboard.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ]
+}

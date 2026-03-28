@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Shree Krishna Dhaba — AI Waiter</title>
+  <title>AI Waiter — Loading...</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -65,15 +65,10 @@
     .order-count { background: var(--green); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; }
     .view-order-btn { font-size: 12px; color: var(--green-dark); font-weight: 500; cursor: pointer; background: none; border: none; text-decoration: underline; font-family: 'DM Sans', sans-serif; }
 
-    /* ── ORDER SUCCESS BANNER ── */
-    .order-success-banner {
-      display: none; padding: 14px 16px; background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);
-      color: white; font-size: 13px; align-items: center; justify-content: space-between;
-      border-radius: 14px; margin: 8px 12px; animation: slideDown 0.4s ease-out;
-    }
+    .order-success-banner { display: none; padding: 14px 16px; background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%); color: white; font-size: 13px; align-items: center; border-radius: 14px; margin: 8px 12px; animation: slideDown 0.4s ease-out; }
     .order-success-banner.visible { display: flex; }
     .order-success-left { display: flex; align-items: center; gap: 10px; }
-    .order-success-icon { font-size: 22px; animation: popIn 0.5s ease-out; }
+    .order-success-icon { font-size: 22px; }
     .order-success-text { line-height: 1.4; }
     .order-success-id { font-weight: 500; font-size: 14px; }
     .order-success-sub { font-size: 11px; opacity: 0.85; }
@@ -81,7 +76,6 @@
     .order-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 1.5s ease-in-out infinite; }
     @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
     @keyframes slideDown { from { transform:translateY(-10px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-    @keyframes popIn { from { transform:scale(0.5); } to { transform:scale(1); } }
 
     .quick-replies { display: flex; gap: 6px; padding: 8px 12px 4px; overflow-x: auto; scrollbar-width: none; }
     .quick-replies::-webkit-scrollbar { display: none; }
@@ -110,14 +104,8 @@
     .order-total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-strong); font-size: 15px; font-weight: 500; }
     .order-total-price { color: var(--green); font-size: 18px; }
     .close-modal-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--bg); color: var(--text); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-strong); }
-    .place-order-btn {
-      width: 100%; margin-top: 16px; padding: 14px; border: none; border-radius: 12px;
-      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer;
-      background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%); color: white;
-      transition: all 0.2s; box-shadow: 0 4px 14px rgba(29,158,117,0.3);
-    }
+    .place-order-btn { width: 100%; margin-top: 16px; padding: 14px; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%); color: white; transition: all 0.2s; box-shadow: 0 4px 14px rgba(29,158,117,0.3); }
     .place-order-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(29,158,117,0.4); }
-    .place-order-btn:active { transform: translateY(0); }
     .place-order-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .place-order-btn .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -125,15 +113,39 @@
     .table-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; border-radius: 10px; border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text); outline: none; }
     .table-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
     .table-input-label { font-size: 13px; color: var(--text-muted); }
+
+    .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; max-width: 480px; gap: 16px; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loading-text { font-size: 14px; color: var(--text-muted); }
+    .error-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; max-width: 480px; gap: 12px; text-align: center; padding: 20px; }
+    .error-icon { font-size: 48px; }
+    .error-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; }
+    .error-sub { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
   </style>
 </head>
 <body>
 
+<!-- LOADING STATE -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading restaurant...</div>
+</div>
+
+<!-- ERROR STATE -->
+<div class="error-screen" id="errorScreen" style="display:none;">
+  <div class="error-icon">🍽️</div>
+  <div class="error-title">Restaurant Not Found</div>
+  <div class="error-sub" id="errorMessage">This restaurant link might be invalid. Please scan the QR code again.</div>
+</div>
+
+<!-- MAIN APP (hidden until loaded) -->
+<div id="mainApp" style="display:none; width:100%; display:none; flex-direction:column; align-items:center; min-height:100vh;">
+
 <div class="top-bar">
-  <div class="restaurant-logo">🍛</div>
+  <div class="restaurant-logo" id="logoEmoji">🍛</div>
   <div class="restaurant-info">
-    <div class="restaurant-name">Shree Krishna Dhaba</div>
-    <div class="restaurant-meta"><span class="online-dot"></span><span>AI Waiter · Always available</span></div>
+    <div class="restaurant-name" id="restaurantName">Loading...</div>
+    <div class="restaurant-meta"><span class="online-dot"></span><span id="restaurantTagline">AI Waiter · Always available</span></div>
   </div>
   <div class="table-badge" id="tableBadge">Table —</div>
 </div>
@@ -160,8 +172,10 @@
       </svg>
     </button>
   </div>
-  <div class="powered-by">Powered by Gemini AI · Built for Indian restaurants · <a href="dashboard.html" target="_blank" style="color:var(--text-hint);text-decoration:none;border-bottom:0.5px dashed var(--text-hint);">Dashboard ↗</a></div>
+  <div class="powered-by">Powered by AI · Built for Indian restaurants</div>
 </div>
+
+</div><!-- /mainApp -->
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
@@ -179,44 +193,80 @@
 </div>
 
 <script>
-  const MENU = {
-    starters: [
-      { name: "Paneer Tikka", price: 180, desc: "Grilled cottage cheese with spices", spicy: true },
-      { name: "Veg Spring Rolls", price: 120, desc: "Crispy rolls with vegetable filling", spicy: false },
-      { name: "Soup of the Day", price: 80, desc: "Chef's daily special soup", spicy: false },
-      { name: "Hara Bhara Kebab", price: 150, desc: "Spinach and pea patties", spicy: false },
-    ],
-    mains: [
-      { name: "Dal Makhani", price: 180, desc: "Slow-cooked black lentils in buttery gravy", spicy: false },
-      { name: "Paneer Butter Masala", price: 220, desc: "Rich tomato and cream curry", spicy: false },
-      { name: "Chole Bhature", price: 160, desc: "Spiced chickpeas with fluffy fried bread", spicy: true },
-      { name: "Veg Biryani", price: 200, desc: "Aromatic basmati rice with vegetables", spicy: false },
-      { name: "Shahi Paneer", price: 240, desc: "Paneer in rich mughlai gravy", spicy: false },
-      { name: "Palak Paneer", price: 200, desc: "Cottage cheese in spinach gravy", spicy: false },
-      { name: "Mix Veg Curry", price: 170, desc: "Seasonal vegetables in spiced gravy", spicy: false },
-    ],
-    breads: [
-      { name: "Butter Naan", price: 40, desc: "Soft tandoor-baked bread with butter", spicy: false },
-      { name: "Garlic Naan", price: 50, desc: "Naan topped with garlic and herbs", spicy: false },
-      { name: "Laccha Paratha", price: 45, desc: "Layered whole wheat paratha", spicy: false },
-      { name: "Puri (2 pcs)", price: 35, desc: "Deep-fried fluffy bread", spicy: false },
-      { name: "Tandoori Roti", price: 30, desc: "Whole wheat roti from tandoor", spicy: false },
-    ],
-    drinks: [
-      { name: "Mango Lassi", price: 80, desc: "Chilled yogurt drink with mango", spicy: false },
-      { name: "Masala Chaas", price: 60, desc: "Spiced buttermilk", spicy: false },
-      { name: "Fresh Lime Soda", price: 70, desc: "Sweet or salted", spicy: false },
-      { name: "Cold Coffee", price: 90, desc: "Chilled coffee blend", spicy: false },
-      { name: "Sweet Lassi", price: 70, desc: "Classic chilled yogurt drink", spicy: false },
-    ]
-  };
-
+  // ── STATE ──────────────────────────────────────────────────
+  let MENU = {};
+  let allMenuItems = [];
   let order = [];
   let history = [];
   let tableNumber = null;
+  let restaurantData = null;
   let placedOrderId = null;
   let orderStatusPollInterval = null;
 
+  // ── READ URL ──────────────────────────────────────────────
+  const pathParts = window.location.pathname.split('/');
+  const slug = pathParts[2] || null; // /r/slug
+  const urlTable = new URLSearchParams(window.location.search).get('table');
+
+  if (urlTable) {
+    tableNumber = urlTable;
+  }
+
+  // ── LOAD RESTAURANT ────────────────────────────────────────
+  async function loadRestaurant() {
+    if (!slug) {
+      showError('No restaurant specified. Please scan a QR code to access a restaurant menu.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/restaurants?slug=' + encodeURIComponent(slug));
+      if (!res.ok) throw new Error('not found');
+      const data = await res.json();
+
+      restaurantData = data.restaurant;
+      allMenuItems = data.menu || [];
+
+      // Group menu by category
+      MENU = {};
+      allMenuItems.forEach(item => {
+        if (!MENU[item.category]) MENU[item.category] = [];
+        MENU[item.category].push({
+          name: item.name,
+          price: item.price,
+          desc: item.description || '',
+          spicy: item.is_spicy
+        });
+      });
+
+      // Update UI
+      document.getElementById('restaurantName').textContent = restaurantData.name;
+      document.getElementById('restaurantTagline').textContent = restaurantData.tagline || 'AI Waiter · Always available';
+      document.getElementById('logoEmoji').textContent = restaurantData.logo_emoji || '🍛';
+      document.title = restaurantData.name + ' — AI Waiter';
+
+      if (tableNumber) {
+        document.getElementById('tableBadge').textContent = 'Table ' + tableNumber;
+      }
+
+      // Show main app
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'flex';
+
+      // Start chat
+      initChat();
+    } catch (e) {
+      showError('Restaurant "' + slug + '" was not found. Please check the link or scan the QR code again.');
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('errorMessage').textContent = msg;
+    document.getElementById('errorScreen').style.display = 'flex';
+  }
+
+  // ── SYSTEM PROMPT ─────────────────────────────────────────
   function buildSystemPrompt() {
     const menuText = Object.entries(MENU).map(([cat, items]) =>
       cat.toUpperCase() + ':\n' + items.map(i =>
@@ -228,7 +278,9 @@
       ? 'Current order:\n' + order.map(i => `- ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('\n')
       : 'No items ordered yet.';
 
-    return `You are a friendly AI waiter for "Shree Krishna Dhaba", a popular vegetarian Indian restaurant in Gujarat. Be warm, helpful, and conversational. Keep responses short (2-4 lines max). Use Hindi/Gujarati words like "ji", "bilkul", "namaste" occasionally.
+    const rName = restaurantData ? restaurantData.name : 'Restaurant';
+
+    return `You are a friendly AI waiter for "${rName}", a popular vegetarian Indian restaurant. Be warm, helpful, and conversational. Keep responses short (2-4 lines max). Use Hindi/Gujarati words like "ji", "bilkul", "namaste" occasionally.
 
 MENU:
 ${menuText}
@@ -246,7 +298,7 @@ Rules:
 - Be natural and friendly like a real waiter`;
   }
 
-  // ── CALL YOUR BACKEND (key is safe on the server) ─────────
+  // ── CALL AI ───────────────────────────────────────────────
   async function callAI(userMessage) {
     const contents = [];
     history.forEach(msg => {
@@ -260,10 +312,7 @@ Rules:
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: contents,
-        systemPrompt: buildSystemPrompt()
-      })
+      body: JSON.stringify({ messages: contents, systemPrompt: buildSystemPrompt() })
     });
 
     const data = await res.json();
@@ -272,7 +321,7 @@ Rules:
   }
 
   function parseResponse(text) {
-    const allItems = [...MENU.starters, ...MENU.mains, ...MENU.breads, ...MENU.drinks];
+    const allItems = Object.values(MENU).flat();
     const orderMatches = [...text.matchAll(/ORDER:([^\|\n]+)\|(\d+)/g)];
     const cleanText = text.replace(/ORDER:[^\n]*/g, '').replace(/\n{3,}/g, '\n\n').trim();
     const newItems = orderMatches.map(m => {
@@ -315,10 +364,8 @@ Rules:
         <div class="order-item-price">₹${i.price * i.qty}</div>
       </div>`).join('');
     document.getElementById('modalTotal').textContent = '₹' + total;
-    // Pre-fill table number if known
     const tableInput = document.getElementById('modalTableInput');
     if (tableNumber) tableInput.value = tableNumber;
-    // Reset button
     const btn = document.getElementById('placeOrderBtn');
     btn.disabled = false;
     btn.innerHTML = '🍽 Place Order';
@@ -331,15 +378,13 @@ Rules:
     }
   }
 
-  // ── SUBMIT ORDER TO BACKEND ────────────────────────────────
+  // ── SUBMIT ORDER ──────────────────────────────────────────
   async function submitOrder() {
     if (order.length === 0) return;
-
     const btn = document.getElementById('placeOrderBtn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Placing order...';
 
-    // Read table number from modal input
     const tableInput = document.getElementById('modalTableInput');
     if (tableInput.value) {
       tableNumber = tableInput.value;
@@ -350,7 +395,8 @@ Rules:
     const payload = {
       items: order.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
       total,
-      table: tableNumber || '?'
+      table: tableNumber || '?',
+      restaurant_id: restaurantData.id
     };
 
     try {
@@ -360,28 +406,16 @@ Rules:
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Failed to place order');
 
       placedOrderId = data.order.id;
-
-      // Close modal
       document.getElementById('modalOverlay').classList.remove('open');
-
-      // Show success banner in chat
       showOrderSuccessBanner(data.order);
-
-      // Add confirmation message in chat
       addMessage('bot', `✅ Order #${data.order.id} has been placed successfully!\nYour food is being prepared. You can track the status right here.`);
       setQuickReplies(['Order status', 'Add more items', 'Call waiter']);
-
-      // Clear current order
       order = [];
       refreshOrderUI();
-
-      // Start polling for status updates
       startOrderStatusPolling(data.order.id);
-
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = '🍽 Place Order';
@@ -389,57 +423,40 @@ Rules:
     }
   }
 
-  // ── ORDER SUCCESS BANNER ────────────────────────────────────
   function showOrderSuccessBanner(orderData) {
-    // Remove old banner if any
     const old = document.querySelector('.order-success-banner');
     if (old) old.remove();
-
     const banner = document.createElement('div');
     banner.className = 'order-success-banner visible';
-    banner.id = 'orderBanner';
-    banner.innerHTML = `
-      <div class="order-success-left">
-        <div class="order-success-icon">🎉</div>
-        <div class="order-success-text">
-          <div class="order-success-id">Order #${orderData.id} · Table ${orderData.table}</div>
-          <div class="order-success-sub">${orderData.items.reduce((s,i) => s + i.qty, 0)} items · ₹${orderData.total}</div>
-          <div class="order-status-live"><span class="order-status-dot"></span><span id="liveStatus">Sent to kitchen</span></div>
-        </div>
-      </div>`;
+    banner.innerHTML = `<div class="order-success-left">
+      <div class="order-success-icon">🎉</div>
+      <div class="order-success-text">
+        <div class="order-success-id">Order #${orderData.id} · Table ${orderData.table_number}</div>
+        <div class="order-success-sub">${orderData.items.reduce((s,i) => s + i.qty, 0)} items · ₹${orderData.total}</div>
+        <div class="order-status-live"><span class="order-status-dot"></span><span id="liveStatus">Sent to kitchen</span></div>
+      </div></div>`;
     const chatArea = document.getElementById('chatArea');
     chatArea.insertBefore(banner, chatArea.firstChild.nextSibling);
   }
 
-  // ── POLL ORDER STATUS ──────────────────────────────────────
   function startOrderStatusPolling(orderId) {
     if (orderStatusPollInterval) clearInterval(orderStatusPollInterval);
     orderStatusPollInterval = setInterval(async () => {
       try {
-        const res = await fetch('/api/orders');
+        const res = await fetch('/api/orders?slug=' + encodeURIComponent(slug));
         const data = await res.json();
         const myOrder = (data.orders || []).find(o => o.id === orderId);
         if (!myOrder) return;
-
         const statusEl = document.getElementById('liveStatus');
         if (!statusEl) return;
-
-        const statusMap = {
-          'new': '🟡 Sent to kitchen',
-          'preparing': '🔥 Being prepared',
-          'ready': '✅ Ready to serve!',
-          'served': '🎉 Served — Enjoy!'
-        };
+        const statusMap = { 'new': '🟡 Sent to kitchen', 'preparing': '🔥 Being prepared', 'ready': '✅ Ready to serve!', 'served': '🎉 Served — Enjoy!' };
         statusEl.textContent = statusMap[myOrder.status] || myOrder.status;
-
-        if (myOrder.status === 'served') {
-          clearInterval(orderStatusPollInterval);
-          orderStatusPollInterval = null;
-        }
-      } catch(e) { /* silent */ }
+        if (myOrder.status === 'served') { clearInterval(orderStatusPollInterval); orderStatusPollInterval = null; }
+      } catch(e) {}
     }, 4000);
   }
 
+  // ── CHAT UI ───────────────────────────────────────────────
   function getTime() {
     return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
@@ -451,8 +468,9 @@ Rules:
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isUser ? 'flex-end' : 'flex-start'}`;
     const msg = document.createElement('div');
     msg.className = `msg ${isUser ? 'user' : 'bot'}`;
+    const emoji = restaurantData ? (restaurantData.logo_emoji || '🍛') : '🍛';
     msg.innerHTML = `
-      <div class="avatar ${isUser ? 'user-av' : 'bot-av'}">${isUser ? 'You' : '🍛'}</div>
+      <div class="avatar ${isUser ? 'user-av' : 'bot-av'}">${isUser ? 'You' : emoji}</div>
       <div class="bubble">${text.replace(/\n/g, '<br>')}</div>`;
     const time = document.createElement('div');
     time.className = 'msg-time';
@@ -468,8 +486,9 @@ Rules:
     const area = document.getElementById('chatArea');
     typingEl = document.createElement('div');
     typingEl.className = 'typing-wrap';
+    const emoji = restaurantData ? (restaurantData.logo_emoji || '🍛') : '🍛';
     typingEl.innerHTML = `
-      <div style="width:30px;height:30px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🍛</div>
+      <div style="width:30px;height:30px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${emoji}</div>
       <div class="typing-bubble"><span></span><span></span><span></span></div>`;
     area.appendChild(typingEl);
     area.scrollTop = area.scrollHeight;
@@ -492,7 +511,6 @@ Rules:
     const text = input.value.trim();
     if (!text) return;
 
-    // Intercept "Place order" / "Confirm order" to trigger submission
     if ((text.toLowerCase().includes('place order') || text.toLowerCase() === 'confirm order') && order.length > 0) {
       addMessage('user', text);
       input.value = '';
@@ -500,21 +518,18 @@ Rules:
       return;
     }
 
-    // Intercept "Order status" to show current status
     if (text.toLowerCase().includes('order status') && placedOrderId) {
       addMessage('user', text);
       input.value = '';
       try {
-        const res = await fetch('/api/orders');
+        const res = await fetch('/api/orders?slug=' + encodeURIComponent(slug));
         const data = await res.json();
         const myOrder = (data.orders || []).find(o => o.id === placedOrderId);
         if (myOrder) {
           const statusEmoji = { new: '🟡', preparing: '🔥', ready: '✅', served: '🎉' };
           const statusText = { new: 'Sent to kitchen', preparing: 'Being prepared', ready: 'Ready to serve!', served: 'Served — Enjoy!' };
-          addMessage('bot', `${statusEmoji[myOrder.status] || '📋'} Order #${myOrder.id} Status: ${statusText[myOrder.status] || myOrder.status}\nTable ${myOrder.table} · ${myOrder.items.reduce((s,i)=>s+i.qty,0)} items · ₹${myOrder.total}`);
+          addMessage('bot', `${statusEmoji[myOrder.status] || '📋'} Order #${myOrder.id} Status: ${statusText[myOrder.status] || myOrder.status}\nTable ${myOrder.table_number} · ${myOrder.items.reduce((s,i)=>s+i.qty,0)} items · ₹${myOrder.total}`);
           setQuickReplies(myOrder.status === 'served' ? ['Thank you!', 'Order more'] : ['Refresh status', 'Need help']);
-        } else {
-          addMessage('bot', 'Sorry, I couldn\'t find your order. Please try again.');
         }
       } catch { addMessage('bot', 'Unable to check status right now.'); }
       return;
@@ -534,10 +549,8 @@ Rules:
     try {
       const raw = await callAI(text);
       const { cleanText, newItems } = parseResponse(raw);
-
       history.push({ role: 'user', content: text });
       history.push({ role: 'assistant', content: raw });
-
       removeTyping();
       addMessage('bot', cleanText);
       if (newItems.length > 0) updateOrder(newItems);
@@ -552,11 +565,9 @@ Rules:
       } else if (lower.includes('bill') || lower.includes('total') || lower.includes('confirm')) {
         setQuickReplies(['Place order ✓', 'Add more items']);
       } else if (lower.includes('recommend') || lower.includes('popular') || lower.includes('best')) {
-        setQuickReplies(['Order Dal Makhani', 'Order Paneer Tikka', 'Order Veg Biryani']);
-      } else if (lower.includes('status') && placedOrderId) {
-        setQuickReplies(['Order status', 'Need help']);
+        const topItems = Object.values(MENU).flat().slice(0, 3).map(i => 'Order ' + i.name);
+        setQuickReplies(topItems);
       }
-
     } catch (err) {
       removeTyping();
       addMessage('bot', err.message || 'Something went wrong. Please try again.');
@@ -567,9 +578,10 @@ Rules:
     if (e.key === 'Enter') sendMessage();
   });
 
-  async function init() {
+  async function initChat() {
     showTyping();
     try {
+      const rName = restaurantData ? restaurantData.name : 'our restaurant';
       const raw = await callAI('A new customer just sat down at a table. Greet them warmly in 2 lines.');
       const { cleanText } = parseResponse(raw);
       history.push({ role: 'assistant', content: raw });
@@ -578,12 +590,14 @@ Rules:
       setQuickReplies(['Show full menu', 'Best sellers', "What's spicy?", 'Veg only options']);
     } catch {
       removeTyping();
-      addMessage('bot', 'Namaste! Welcome to Shree Krishna Dhaba 🙏\nWhat would you like to order today?');
+      const rName = restaurantData ? restaurantData.name : 'our restaurant';
+      addMessage('bot', `Namaste! Welcome to ${rName} 🙏\nWhat would you like to order today?`);
       setQuickReplies(['Show full menu', 'Best sellers', "What's spicy?"]);
     }
   }
 
-  init();
+  // ── BOOT ──────────────────────────────────────────────────
+  loadRestaurant();
 </script>
 </body>
 </html>
