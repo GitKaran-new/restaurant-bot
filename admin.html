@@ -449,14 +449,14 @@
       const url = `${base}/r/${r.slug}?table=${t}`;
       const card = document.createElement('div');
       card.className = 'qr-card';
-      const canvas = document.createElement('canvas');
-      card.appendChild(canvas);
-      card.innerHTML += `
+      card.innerHTML = `
+        <canvas></canvas>
         <div class="qr-table">Table ${t}</div>
         <div class="qr-restaurant">${r.name}</div>
         <div class="qr-scan-text">Scan to order · ${r.slug}</div>`;
       grid.appendChild(card);
 
+      const canvas = card.querySelector('canvas');
       try {
         await QRCode.toCanvas(canvas, url, { width: 140, margin: 1, color: { dark: '#1a1a1a', light: '#ffffff' } });
       } catch(e) { console.error('QR error', e); }
