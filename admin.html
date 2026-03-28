@@ -447,18 +447,35 @@
 
     for (let t = 1; t <= count; t++) {
       const url = `${base}/r/${r.slug}?table=${t}`;
+      
+      // 1. Create card container
       const card = document.createElement('div');
       card.className = 'qr-card';
       
+      // 2. Create canvas
+      const canvas = document.createElement('canvas');
+      canvas.style.margin = '0 auto 8px';
+      canvas.style.display = 'block';
+      card.appendChild(canvas);
+      
+      // 3. Create text node container
+      const textContainer = document.createElement('div');
+      textContainer.innerHTML = `
+        <div class="qr-table">Table ${t}</div>
+        <div class="qr-restaurant">${r.name}</div>
+        <div class="qr-scan-text">Scan to order · ${r.slug}</div>
+      `;
+      card.appendChild(textContainer);
+      
+      // 4. Append card to grid FIRST so it enters the DOM
+      grid.appendChild(card);
+      
+      // 5. Generate QR Code securely into the attached canvas using standard callback
       try {
-        const imgData = await QRCode.toDataURL(url, { width: 140, margin: 1, color: { dark: '#1a1a1a', light: '#ffffff' } });
-        card.innerHTML = `
-          <img src="${imgData}" alt="QR" style="margin: 0 auto 8px; display: block;" />
-          <div class="qr-table">Table ${t}</div>
-          <div class="qr-restaurant">${r.name}</div>
-          <div class="qr-scan-text">Scan to order · ${r.slug}</div>`;
-        grid.appendChild(card);
-      } catch(e) { console.error('QR error', e); }
+        QRCode.toCanvas(canvas, url, { width: 140, margin: 1, color: { dark: '#1a1a1a', light: '#ffffff' } }, function (error) {
+          if (error) console.error('QR rendering error:', error);
+        });
+      } catch(e) { console.error('QR generation exception:', e); }
     }
   }
 
