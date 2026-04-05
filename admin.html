@@ -1,377 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Restaurant Bot — Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script src="/qrcode.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
-      --red: #E24B4A; --red-light: #FCEBEB;
-      --text: #1a1a1a; --text-muted: #6b7280; --text-hint: #9ca3af;
-      --bg: #f4f3f0; --surface: #ffffff;
-      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.15);
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    html, body { min-height: 100vh; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
 
-    .topbar { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
-    .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 600; }
-    .brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; }
-    .brand-sub { font-size: 11px; color: var(--text-muted); }
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-light: #E1F5EE;
+      --red: #E24B4A;
+      --red-light: #FCEBEB;
+      --text: #1a1a1a;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f4f3f0;
+      --surface: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
+    }
 
-    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+    html,
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+    }
 
-    .section-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+    .topbar {
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
 
     /* Restaurant Cards */
-    .restaurant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .rest-card { background: var(--surface); border-radius: 14px; border: 0.5px solid var(--border); padding: 18px; cursor: pointer; transition: all 0.2s; }
-    .rest-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .rest-card.selected { border-color: var(--green); border-width: 2px; background: var(--green-light); }
-    .rest-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .rest-emoji { width: 42px; height: 42px; border-radius: 12px; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .rest-name { font-weight: 500; font-size: 15px; }
-    .rest-slug { font-size: 12px; color: var(--text-muted); }
-    .rest-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
-    .rest-links { display: flex; gap: 8px; margin-top: 10px; }
-    .rest-link { font-size: 11px; padding: 4px 10px; border-radius: 8px; background: var(--bg); color: var(--text-muted); text-decoration: none; border: 0.5px solid var(--border); transition: all 0.15s; }
-    .rest-link:hover { background: var(--green); color: white; border-color: var(--green); }
+    .restaurant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
 
-    .add-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); border: 2px dashed var(--border-strong); background: transparent; min-height: 130px; }
-    .add-card:hover { border-color: var(--green); color: var(--green); }
-    .add-icon { font-size: 28px; }
+    .rest-card {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 0.5px solid var(--border);
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rest-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .rest-card.selected {
+      border-color: var(--green);
+      border-width: 2px;
+      background: var(--green-light);
+    }
+
+    .rest-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .rest-emoji {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .rest-name {
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .rest-slug {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .rest-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+    }
+
+    .rest-links {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .rest-link {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 0.5px solid var(--border);
+      transition: all 0.15s;
+    }
+
+    .rest-link:hover {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .add-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-muted);
+      border: 2px dashed var(--border-strong);
+      background: transparent;
+      min-height: 130px;
+    }
+
+    .add-card:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .add-icon {
+      font-size: 28px;
+    }
 
     /* Forms */
-    .form-card { background: var(--surface); border-radius: 14px; border: 0.5px solid var(--border); padding: 20px; margin-bottom: 20px; }
-    .form-title { font-weight: 500; font-size: 15px; margin-bottom: 14px; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
-    .form-label { font-size: 12px; color: var(--text-muted); }
-    .form-input { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 12px; border-radius: 10px; border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text); outline: none; }
-    .form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
-    .form-input-sm { max-width: 80px; }
+    .form-card {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 0.5px solid var(--border);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
 
-    .btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 9px 18px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.15s; }
-    .btn-primary { background: var(--green); color: white; }
-    .btn-primary:hover { background: var(--green-dark); }
-    .btn-secondary { background: var(--bg); color: var(--text); border: 0.5px solid var(--border-strong); }
-    .btn-danger { background: var(--red-light); color: var(--red); }
-    .btn-danger:hover { background: var(--red); color: white; }
-    .btn-sm { font-size: 12px; padding: 6px 12px; }
+    .form-title {
+      font-weight: 500;
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 0.5px solid var(--border-strong);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.1);
+    }
+
+    .form-input-sm {
+      max-width: 80px;
+    }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 0.5px solid var(--border-strong);
+    }
+
+    .btn-danger {
+      background: var(--red-light);
+      color: var(--red);
+    }
+
+    .btn-danger:hover {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-sm {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
 
     /* Tabs */
-    .detail-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); margin-bottom: 16px; }
-    .dtab { padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; font-family: 'DM Sans', sans-serif; }
-    .dtab.active { color: var(--green); border-bottom-color: var(--green); }
+    .detail-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .dtab {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .dtab.active {
+      color: var(--green);
+      border-bottom-color: var(--green);
+    }
 
     /* Menu Editor */
-    .category-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-    .cat-tab { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
-    .cat-tab.active { background: var(--green); color: white; border-color: var(--green); }
+    .category-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
 
-    .menu-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface); border-radius: 10px; border: 0.5px solid var(--border); margin-bottom: 8px; }
-    .menu-item-left { display: flex; align-items: center; gap: 12px; }
-    .menu-item-name { font-size: 14px; font-weight: 500; }
-    .menu-item-desc { font-size: 12px; color: var(--text-muted); }
-    .menu-item-price { font-size: 14px; font-weight: 500; color: var(--green-dark); }
-    .spicy-badge { font-size: 11px; background: #FCEBEB; color: #E24B4A; padding: 2px 8px; border-radius: 10px; }
-    .menu-item-actions { display: flex; gap: 6px; }
+    .cat-tab {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 0.5px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .cat-tab.active {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .menu-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface);
+      border-radius: 10px;
+      border: 0.5px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-item-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .menu-item-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .menu-item-price {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--green-dark);
+    }
+
+    .spicy-badge {
+      font-size: 11px;
+      background: #FCEBEB;
+      color: #E24B4A;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .menu-item-actions {
+      display: flex;
+      gap: 6px;
+    }
 
     /* QR Section */
-    .qr-controls { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
-    .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-    .qr-card { background: var(--surface); border-radius: 14px; border: 0.5px solid var(--border); padding: 16px; text-align: center; }
-    .qr-card canvas { margin: 0 auto 8px; display: block; }
-    .qr-table { font-size: 16px; font-weight: 500; }
-    .qr-restaurant { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    .qr-scan-text { font-size: 10px; color: var(--text-hint); margin-top: 6px; }
+    .qr-controls {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
 
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 10px; font-size: 13px; z-index: 200; animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity:0; } to { transform: translateX(-50%) translateY(0); opacity:1; } }
+    .qr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .qr-card {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 0.5px solid var(--border);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .qr-card canvas {
+      margin: 0 auto 8px;
+      display: block;
+    }
+
+    .qr-table {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .qr-restaurant {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .qr-scan-text {
+      font-size: 10px;
+      color: var(--text-hint);
+      margin-top: 6px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      z-index: 200;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
 
     @media print {
-      .topbar, .restaurant-grid, .form-card, .detail-tabs, .category-tabs, .qr-controls, .btn, .rest-links, .section-title { display: none !important; }
-      .qr-grid { grid-template-columns: repeat(3, 1fr); }
-      .qr-card { break-inside: avoid; border: 1px solid #ccc; }
-      body { background: white; }
+
+      .topbar,
+      .restaurant-grid,
+      .form-card,
+      .detail-tabs,
+      .category-tabs,
+      .qr-controls,
+      .btn,
+      .rest-links,
+      .section-title {
+        display: none !important;
+      }
+
+      .qr-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .qr-card {
+        break-inside: avoid;
+        border: 1px solid #ccc;
+      }
+
+      body {
+        background: white;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">🤖</div>
-    <div>
-      <div class="brand">Restaurant Bot</div>
-      <div class="brand-sub">Admin Panel</div>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="section-title">Your Restaurants</div>
-  <div class="restaurant-grid" id="restaurantGrid"></div>
-
-  <!-- Add Restaurant Form (hidden by default) -->
-  <div class="form-card" id="addForm" style="display:none;">
-    <div class="form-title">Add New Restaurant</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Restaurant Name</label>
-        <input class="form-input" id="newName" placeholder="e.g. Pizza Palace" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL Slug</label>
-        <input class="form-input" id="newSlug" placeholder="e.g. pizza-palace" />
-      </div>
-      <div class="form-group" style="max-width:100px;">
-        <label class="form-label">Emoji</label>
-        <input class="form-input form-input-sm" id="newEmoji" placeholder="🍕" value="🍛" />
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-primary" onclick="createRestaurant()">Create Restaurant</button>
-      <button class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Restaurant Detail Panel -->
-  <div id="detailPanel" style="display:none;">
-    <div class="detail-tabs">
-      <button class="dtab active" onclick="switchTab('menu', this)">Menu Editor</button>
-      <button class="dtab" onclick="switchTab('qr', this)">QR Codes</button>
-      <button class="dtab" onclick="switchTab('settings', this)">Settings</button>
-    </div>
-
-    <!-- Menu Tab -->
-    <div id="tab-menu">
-      <div class="category-tabs" id="categoryTabs"></div>
-      <div id="menuList"></div>
-      <div class="form-card" style="margin-top:12px;">
-        <div class="form-title">Add Menu Item</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Item Name</label>
-            <input class="form-input" id="itemName" placeholder="e.g. Paneer Tikka" />
-          </div>
-          <div class="form-group" style="max-width:100px;">
-            <label class="form-label">Price (₹)</label>
-            <input class="form-input form-input-sm" id="itemPrice" type="number" placeholder="180" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <input class="form-input" id="itemDesc" placeholder="Short description..." />
-          </div>
-          <div class="form-group" style="max-width:140px;">
-            <label class="form-label">Category</label>
-            <select class="form-input" id="itemCat">
-              <option value="starters">Starters</option>
-              <option value="mains">Mains</option>
-              <option value="breads">Breads</option>
-              <option value="rice">Rice</option>
-              <option value="drinks">Drinks</option>
-              <option value="desserts">Desserts</option>
-            </select>
-          </div>
-          <div class="form-group" style="max-width:80px;">
-            <label class="form-label">Spicy?</label>
-            <select class="form-input" id="itemSpicy">
-              <option value="false">No</option>
-              <option value="true">Yes 🌶</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="addMenuItem()">Add Item</button>
-      </div>
-    </div>
-
-    <!-- QR Tab -->
-    <div id="tab-qr" style="display:none;">
-      <div class="qr-controls">
-        <div class="form-group" style="max-width:120px;">
-          <label class="form-label">Number of Tables</label>
-          <input class="form-input" id="qrCount" type="number" value="10" min="1" max="50" />
-        </div>
-        <div class="form-group" style="flex:1;">
-          <label class="form-label">Base URL (auto-detected)</label>
-          <input class="form-input" id="qrBaseUrl" />
-        </div>
-        <button class="btn btn-primary" onclick="generateQRCodes()">Generate QR Codes</button>
-        <button class="btn btn-secondary" onclick="window.print()">🖨 Print All</button>
-      </div>
-      <div class="qr-grid" id="qrGrid"></div>
-    </div>
-
-    <!-- Settings Tab -->
-    <div id="tab-settings" style="display:none;">
-      <div class="form-card">
-        <div class="form-title">Restaurant Settings</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Name</label>
-            <input class="form-input" id="editName" />
-          </div>
-          <div class="form-group" style="max-width:100px;">
-            <label class="form-label">Emoji</label>
-            <input class="form-input form-input-sm" id="editEmoji" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Tagline</label>
-            <input class="form-input" id="editTagline" placeholder="AI Waiter · Always available" />
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
-          <button class="btn btn-danger" onclick="deleteRestaurant()">Delete Restaurant</button>
-        </div>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">🤖</div>
+      <div>
+        <div class="brand">Restaurant Bot</div>
+        <div class="brand-sub">Admin Panel</div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  let restaurants = [];
-  let selectedId = null;
-  let menuItems = [];
-  let activeCategory = 'all';
-  let activeTab = 'menu';
+  <div class="container">
+    <div class="section-title">Your Restaurants</div>
+    <div class="restaurant-grid" id="restaurantGrid"></div>
 
-  const CATEGORIES = ['starters', 'mains', 'breads', 'rice', 'drinks', 'desserts'];
+    <!-- Add Restaurant Form (hidden by default) -->
+    <div class="form-card" id="addForm" style="display:none;">
+      <div class="form-title">Add New Restaurant</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Restaurant Name</label>
+          <input class="form-input" id="newName" placeholder="e.g. Pizza Palace" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Slug</label>
+          <input class="form-input" id="newSlug" placeholder="e.g. pizza-palace" />
+        </div>
+        <div class="form-group" style="max-width:100px;">
+          <label class="form-label">Emoji</label>
+          <input class="form-input form-input-sm" id="newEmoji" placeholder="🍕" value="🍛" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="createRestaurant()">Create Restaurant</button>
+        <button class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
 
-  function sel() { return restaurants.find(r => r.id === selectedId); }
+    <!-- Restaurant Detail Panel -->
+    <div id="detailPanel" style="display:none;">
+      <div class="detail-tabs">
+        <button class="dtab active" onclick="switchTab('menu', this)">Menu Editor</button>
+        <button class="dtab" onclick="switchTab('qr', this)">QR Codes</button>
+        <button class="dtab" onclick="switchTab('settings', this)">Settings</button>
+      </div>
 
-  // ── API HELPERS ────────────────────────────────────────────
-  async function api(url, method = 'GET', body = null) {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
-    return res.json();
-  }
+      <!-- Menu Tab -->
+      <div id="tab-menu">
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div id="menuList"></div>
+        <div class="form-card" style="margin-top:12px;">
+          <div class="form-title">Add Menu Item</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Item Name</label>
+              <input class="form-input" id="itemName" placeholder="e.g. Paneer Tikka" />
+            </div>
+            <div class="form-group" style="max-width:100px;">
+              <label class="form-label">Price (₹)</label>
+              <input class="form-input form-input-sm" id="itemPrice" type="number" placeholder="180" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input class="form-input" id="itemDesc" placeholder="Short description..." />
+            </div>
+            <div class="form-group" style="max-width:140px;">
+              <label class="form-label">Category</label>
+              <select class="form-input" id="itemCat">
+                <option value="starters">Starters</option>
+                <option value="mains">Mains</option>
+                <option value="breads">Breads</option>
+                <option value="rice">Rice</option>
+                <option value="drinks">Drinks</option>
+                <option value="desserts">Desserts</option>
+              </select>
+            </div>
+            <div class="form-group" style="max-width:80px;">
+              <label class="form-label">Spicy?</label>
+              <select class="form-input" id="itemSpicy">
+                <option value="false">No</option>
+                <option value="true">Yes 🌶</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="addMenuItem()">Add Item</button>
+        </div>
+      </div>
 
-  // ── FETCH RESTAURANTS ──────────────────────────────────────
-  async function fetchRestaurants() {
-    const data = await api('/api/restaurants');
-    restaurants = data.restaurants || [];
-    renderRestaurants();
-  }
+      <!-- QR Tab -->
+      <div id="tab-qr" style="display:none;">
+        <div class="qr-controls">
+          <div class="form-group" style="max-width:120px;">
+            <label class="form-label">Number of Tables</label>
+            <input class="form-input" id="qrCount" type="number" value="10" min="1" max="50" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Base URL (auto-detected)</label>
+            <input class="form-input" id="qrBaseUrl" />
+          </div>
+          <button class="btn btn-primary" onclick="generateQRCodes()">Generate QR Codes</button>
+          <button class="btn btn-secondary" onclick="window.print()">🖨 Print All</button>
+        </div>
+        <div class="qr-grid" id="qrGrid"></div>
+      </div>
 
-  // ── CREATE RESTAURANT ──────────────────────────────────────
-  async function createRestaurant() {
-    const name = document.getElementById('newName').value.trim();
-    const slug = document.getElementById('newSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-    const emoji = document.getElementById('newEmoji').value.trim() || '🍛';
-    if (!name || !slug) return toast('Name and slug are required');
+      <!-- Settings Tab -->
+      <div id="tab-settings" style="display:none;">
+        <div class="form-card">
+          <div class="form-title">Restaurant Settings</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input class="form-input" id="editName" />
+            </div>
+            <div class="form-group" style="max-width:100px;">
+              <label class="form-label">Emoji</label>
+              <input class="form-input form-input-sm" id="editEmoji" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tagline</label>
+              <input class="form-input" id="editTagline" placeholder="AI Waiter · Always available" />
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+            <button class="btn btn-danger" onclick="deleteRestaurant()">Delete Restaurant</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    const data = await api('/api/restaurants', 'POST', { name, slug, logo_emoji: emoji });
-    if (data.error) return toast('Error: ' + data.error);
-    toast('Restaurant created!');
-    document.getElementById('addForm').style.display = 'none';
-    await fetchRestaurants();
-    selectRestaurant(data.restaurant.id);
-  }
+  <script>
+    let restaurants = [];
+    let selectedId = null;
+    let menuItems = [];
+    let activeCategory = 'all';
+    let activeTab = 'menu';
 
-  // ── SELECT RESTAURANT ──────────────────────────────────────
-  async function selectRestaurant(id) {
-    selectedId = id;
-    renderRestaurants();
-    document.getElementById('detailPanel').style.display = 'block';
+    const CATEGORIES = ['starters', 'mains', 'breads', 'rice', 'drinks', 'desserts'];
 
-    const r = sel();
-    if (!r) return;
+    function sel() { return restaurants.find(r => r.id === selectedId); }
 
-    // Populate settings
-    document.getElementById('editName').value = r.name;
-    document.getElementById('editEmoji').value = r.logo_emoji || '🍛';
-    document.getElementById('editTagline').value = r.tagline || '';
+    // ── API HELPERS ────────────────────────────────────────────
+    async function api(url, method = 'GET', body = null) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(url, opts);
+      return res.json();
+    }
 
-    // Set QR base URL
-    const base = window.location.origin;
-    document.getElementById('qrBaseUrl').value = base;
+    // ── FETCH RESTAURANTS ──────────────────────────────────────
+    async function fetchRestaurants() {
+      const data = await api('/api/restaurants');
+      restaurants = data.restaurants || [];
+      renderRestaurants();
+    }
 
-    // Fetch menu items
-    const data = await api('/api/menu?restaurant_id=' + id);
-    menuItems = data.items || [];
-    renderCategoryTabs();
-    renderMenuItems();
-  }
+    // ── CREATE RESTAURANT ──────────────────────────────────────
+    async function createRestaurant() {
+      const name = document.getElementById('newName').value.trim();
+      const slug = document.getElementById('newSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const emoji = document.getElementById('newEmoji').value.trim() || '🍛';
+      if (!name || !slug) return toast('Name and slug are required');
 
-  // ── SAVE SETTINGS ──────────────────────────────────────────
-  async function saveSettings() {
-    const r = sel();
-    if (!r) return;
-    const updates = {
-      id: r.id,
-      name: document.getElementById('editName').value.trim(),
-      logo_emoji: document.getElementById('editEmoji').value.trim(),
-      tagline: document.getElementById('editTagline').value.trim()
-    };
-    const data = await api('/api/restaurants', 'PATCH', updates);
-    if (data.error) return toast('Error: ' + data.error);
-    toast('Settings saved!');
-    await fetchRestaurants();
-  }
+      const data = await api('/api/restaurants', 'POST', { name, slug, logo_emoji: emoji });
+      if (data.error) return toast('Error: ' + data.error);
+      toast('Restaurant created!');
+      document.getElementById('addForm').style.display = 'none';
+      await fetchRestaurants();
+      selectRestaurant(data.restaurant.id);
+    }
 
-  // ── DELETE RESTAURANT ──────────────────────────────────────
-  async function deleteRestaurant() {
-    if (!confirm('Delete this restaurant and all its menu items? This cannot be undone.')) return;
-    await api('/api/restaurants', 'DELETE', { id: selectedId });
-    selectedId = null;
-    document.getElementById('detailPanel').style.display = 'none';
-    toast('Restaurant deleted');
-    await fetchRestaurants();
-  }
+    // ── SELECT RESTAURANT ──────────────────────────────────────
+    async function selectRestaurant(id) {
+      selectedId = id;
+      renderRestaurants();
+      document.getElementById('detailPanel').style.display = 'block';
 
-  // ── ADD MENU ITEM ──────────────────────────────────────────
-  async function addMenuItem() {
-    const name = document.getElementById('itemName').value.trim();
-    const price = document.getElementById('itemPrice').value;
-    const desc = document.getElementById('itemDesc').value.trim();
-    const category = document.getElementById('itemCat').value;
-    const is_spicy = document.getElementById('itemSpicy').value === 'true';
-    if (!name || !price) return toast('Name and price required');
+      const r = sel();
+      if (!r) return;
 
-    const data = await api('/api/menu', 'POST', {
-      restaurant_id: selectedId, name, price: parseInt(price), description: desc, category, is_spicy, sort_order: menuItems.length
-    });
-    if (data.error) return toast('Error: ' + data.error);
+      // Populate settings
+      document.getElementById('editName').value = r.name;
+      document.getElementById('editEmoji').value = r.logo_emoji || '🍛';
+      document.getElementById('editTagline').value = r.tagline || '';
 
-    document.getElementById('itemName').value = '';
-    document.getElementById('itemPrice').value = '';
-    document.getElementById('itemDesc').value = '';
-    toast(name + ' added!');
+      // Set QR base URL
+      const base = window.location.origin;
+      document.getElementById('qrBaseUrl').value = base;
 
-    const items = await api('/api/menu?restaurant_id=' + selectedId);
-    menuItems = items.items || [];
-    renderCategoryTabs();
-    renderMenuItems();
-  }
+      // Fetch menu items
+      const data = await api('/api/menu?restaurant_id=' + id);
+      menuItems = data.items || [];
+      renderCategoryTabs();
+      renderMenuItems();
+    }
 
-  // ── DELETE MENU ITEM ───────────────────────────────────────
-  async function deleteItem(id) {
-    if (!confirm('Delete this menu item?')) return;
-    await api('/api/menu', 'DELETE', { id });
-    const items = await api('/api/menu?restaurant_id=' + selectedId);
-    menuItems = items.items || [];
-    renderCategoryTabs();
-    renderMenuItems();
-    toast('Item deleted');
-  }
+    // ── SAVE SETTINGS ──────────────────────────────────────────
+    async function saveSettings() {
+      const r = sel();
+      if (!r) return;
+      const updates = {
+        id: r.id,
+        name: document.getElementById('editName').value.trim(),
+        logo_emoji: document.getElementById('editEmoji').value.trim(),
+        tagline: document.getElementById('editTagline').value.trim()
+      };
+      const data = await api('/api/restaurants', 'PATCH', updates);
+      if (data.error) return toast('Error: ' + data.error);
+      toast('Settings saved!');
+      await fetchRestaurants();
+    }
 
-  // ── RENDER RESTAURANTS ─────────────────────────────────────
-  function renderRestaurants() {
-    const grid = document.getElementById('restaurantGrid');
-    const base = window.location.origin;
-    grid.innerHTML = restaurants.map(r => `
+    // ── DELETE RESTAURANT ──────────────────────────────────────
+    async function deleteRestaurant() {
+      if (!confirm('Delete this restaurant and all its menu items? This cannot be undone.')) return;
+      await api('/api/restaurants', 'DELETE', { id: selectedId });
+      selectedId = null;
+      document.getElementById('detailPanel').style.display = 'none';
+      toast('Restaurant deleted');
+      await fetchRestaurants();
+    }
+
+    // ── ADD MENU ITEM ──────────────────────────────────────────
+    async function addMenuItem() {
+      const name = document.getElementById('itemName').value.trim();
+      const price = document.getElementById('itemPrice').value;
+      const desc = document.getElementById('itemDesc').value.trim();
+      const category = document.getElementById('itemCat').value;
+      const is_spicy = document.getElementById('itemSpicy').value === 'true';
+      if (!name || !price) return toast('Name and price required');
+
+      const data = await api('/api/menu', 'POST', {
+        restaurant_id: selectedId, name, price: parseInt(price), description: desc, category, is_spicy, sort_order: menuItems.length
+      });
+      if (data.error) return toast('Error: ' + data.error);
+
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemPrice').value = '';
+      document.getElementById('itemDesc').value = '';
+      toast(name + ' added!');
+
+      const items = await api('/api/menu?restaurant_id=' + selectedId);
+      menuItems = items.items || [];
+      renderCategoryTabs();
+      renderMenuItems();
+    }
+
+    // ── DELETE MENU ITEM ───────────────────────────────────────
+    async function deleteItem(id) {
+      if (!confirm('Delete this menu item?')) return;
+      await api('/api/menu', 'DELETE', { id });
+      const items = await api('/api/menu?restaurant_id=' + selectedId);
+      menuItems = items.items || [];
+      renderCategoryTabs();
+      renderMenuItems();
+      toast('Item deleted');
+    }
+
+    // ── RENDER RESTAURANTS ─────────────────────────────────────
+    function renderRestaurants() {
+      const grid = document.getElementById('restaurantGrid');
+      const base = window.location.origin;
+      grid.innerHTML = restaurants.map(r => `
       <div class="rest-card ${selectedId === r.id ? 'selected' : ''}" onclick="selectRestaurant('${r.id}')">
         <div class="rest-card-top">
           <div class="rest-emoji">${r.logo_emoji || '🍛'}</div>
@@ -390,37 +787,37 @@
         <div class="add-icon">+</div>
         <div>Add Restaurant</div>
       </div>`;
-  }
-
-  // ── RENDER CATEGORY TABS ───────────────────────────────────
-  function renderCategoryTabs() {
-    const cats = [...new Set(menuItems.map(i => i.category))];
-    const tabs = document.getElementById('categoryTabs');
-    tabs.innerHTML = `<button class="cat-tab ${activeCategory === 'all' ? 'active' : ''}" onclick="filterCategory('all', this)">All (${menuItems.length})</button>` +
-      cats.map(c => {
-        const count = menuItems.filter(i => i.category === c).length;
-        return `<button class="cat-tab ${activeCategory === c ? 'active' : ''}" onclick="filterCategory('${c}', this)">${c.charAt(0).toUpperCase() + c.slice(1)} (${count})</button>`;
-      }).join('');
-  }
-
-  function filterCategory(cat, btn) {
-    activeCategory = cat;
-    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderMenuItems();
-  }
-
-  // ── RENDER MENU ITEMS ──────────────────────────────────────
-  function renderMenuItems() {
-    const list = document.getElementById('menuList');
-    const filtered = activeCategory === 'all' ? menuItems : menuItems.filter(i => i.category === activeCategory);
-
-    if (filtered.length === 0) {
-      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:14px;">No items yet. Add your first menu item below.</div>';
-      return;
     }
 
-    list.innerHTML = filtered.map(i => `
+    // ── RENDER CATEGORY TABS ───────────────────────────────────
+    function renderCategoryTabs() {
+      const cats = [...new Set(menuItems.map(i => i.category))];
+      const tabs = document.getElementById('categoryTabs');
+      tabs.innerHTML = `<button class="cat-tab ${activeCategory === 'all' ? 'active' : ''}" onclick="filterCategory('all', this)">All (${menuItems.length})</button>` +
+        cats.map(c => {
+          const count = menuItems.filter(i => i.category === c).length;
+          return `<button class="cat-tab ${activeCategory === c ? 'active' : ''}" onclick="filterCategory('${c}', this)">${c.charAt(0).toUpperCase() + c.slice(1)} (${count})</button>`;
+        }).join('');
+    }
+
+    function filterCategory(cat, btn) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMenuItems();
+    }
+
+    // ── RENDER MENU ITEMS ──────────────────────────────────────
+    function renderMenuItems() {
+      const list = document.getElementById('menuList');
+      const filtered = activeCategory === 'all' ? menuItems : menuItems.filter(i => i.category === activeCategory);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:14px;">No items yet. Add your first menu item below.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(i => `
       <div class="menu-item-row">
         <div class="menu-item-left">
           <div>
@@ -434,86 +831,122 @@
         </div>
       </div>
     `).join('');
-  }
+    }
 
-  // ── QR CODES ──────────────────────────────────────────────
-  async function generateQRCodes() {
-    const r = sel();
-    if (!r) return;
-    const count = parseInt(document.getElementById('qrCount').value) || 10;
-    const base = document.getElementById('qrBaseUrl').value.trim().replace(/\/$/, '');
-    const grid = document.getElementById('qrGrid');
-    grid.innerHTML = '';
+    // ── QR CODES ──────────────────────────────────────────────
+    async function generateQRCodes() {
+      const r = sel();
+      if (!r) return;
 
-    for (let t = 1; t <= count; t++) {
-      const url = `${base}/r/${r.slug}?table=${t}`;
-      
-      // 1. Create card container
-      const card = document.createElement('div');
-      card.className = 'qr-card';
-      
-      // 2. Create canvas
-      const canvas = document.createElement('canvas');
-      canvas.style.margin = '0 auto 8px';
-      canvas.style.display = 'block';
-      card.appendChild(canvas);
-      
-      // 3. Create text node container
-      const textContainer = document.createElement('div');
-      textContainer.innerHTML = `
+      // Check if QRCode library is loaded
+      if (typeof QRCode === 'undefined') {
+        toast('QR library failed to load. Retrying...');
+        // Try to dynamically load it
+        try {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            script.onload = resolve;
+            script.onerror = () => {
+              // Try unpkg as fallback
+              const script2 = document.createElement('script');
+              script2.src = 'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js';
+              script2.onload = resolve;
+              script2.onerror = reject;
+              document.head.appendChild(script2);
+            };
+            document.head.appendChild(script);
+          });
+        } catch (e) {
+          toast('Could not load QR code library. Please refresh the page.');
+          return;
+        }
+      }
+
+      const count = parseInt(document.getElementById('qrCount').value) || 10;
+      const base = document.getElementById('qrBaseUrl').value.trim().replace(/\/$/, '');
+      const grid = document.getElementById('qrGrid');
+      grid.innerHTML = '';
+
+      for (let t = 1; t <= count; t++) {
+        const url = `${base}/r/${r.slug}?table=${t}`;
+
+        // 1. Create card container
+        const card = document.createElement('div');
+        card.className = 'qr-card';
+
+        // 2. Prepare QR Container
+        const qrContainer = document.createElement('div');
+        qrContainer.style.margin = '0 auto 12px';
+        qrContainer.style.display = 'flex';
+        qrContainer.style.justifyContent = 'center';
+        card.appendChild(qrContainer);
+
+        // 3. Create text node container
+        const textContainer = document.createElement('div');
+        textContainer.innerHTML = `
         <div class="qr-table">Table ${t}</div>
         <div class="qr-restaurant">${r.name}</div>
         <div class="qr-scan-text">Scan to order · ${r.slug}</div>
       `;
-      card.appendChild(textContainer);
-      
-      // 4. Append card to grid FIRST so it enters the DOM
-      grid.appendChild(card);
-      
-      // 5. Generate QR Code securely into the attached canvas using standard callback
-      try {
-        QRCode.toCanvas(canvas, url, { width: 140, margin: 1, color: { dark: '#1a1a1a', light: '#ffffff' } }, function (error) {
-          if (error) console.error('QR rendering error:', error);
-        });
-      } catch(e) { console.error('QR generation exception:', e); }
+        card.appendChild(textContainer);
+
+        // 4. Append card to grid FIRST so it enters the DOM
+        grid.appendChild(card);
+
+        // 5. Generate QR Code with qrcodejs NOW that it's in the DOM
+        try {
+          new QRCode(qrContainer, {
+            text: url,
+            width: 140,
+            height: 140,
+            colorDark : "#1a1a1a",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+          });
+        } catch (e) {
+          console.error('QR Gen Error:', e);
+          qrContainer.innerHTML = '<span style="color:red">QR Error</span>';
+        }
+      }
     }
-  }
 
-  // ── TAB SWITCHING ──────────────────────────────────────────
-  function switchTab(tab, btn) {
-    activeTab = tab;
-    document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-menu').style.display = tab === 'menu' ? 'block' : 'none';
-    document.getElementById('tab-qr').style.display = tab === 'qr' ? 'block' : 'none';
-    document.getElementById('tab-settings').style.display = tab === 'settings' ? 'block' : 'none';
-  }
+    // ── TAB SWITCHING ──────────────────────────────────────────
+    function switchTab(tab, btn) {
+      activeTab = tab;
+      document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-menu').style.display = tab === 'menu' ? 'block' : 'none';
+      document.getElementById('tab-qr').style.display = tab === 'qr' ? 'block' : 'none';
+      document.getElementById('tab-settings').style.display = tab === 'settings' ? 'block' : 'none';
+    }
 
-  function toggleAddForm() {
-    const f = document.getElementById('addForm');
-    f.style.display = f.style.display === 'none' ? 'block' : 'none';
-  }
+    function toggleAddForm() {
+      const f = document.getElementById('addForm');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    }
 
-  // ── TOAST ──────────────────────────────────────────────────
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2500);
-  }
+    // ── TOAST ──────────────────────────────────────────────────
+    function toast(msg) {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }
 
-  // ── AUTO-SLUG FROM NAME ────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
-    const nameInput = document.getElementById('newName');
-    const slugInput = document.getElementById('newSlug');
-    nameInput.addEventListener('input', () => {
-      slugInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    // ── AUTO-SLUG FROM NAME ────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('newName');
+      const slugInput = document.getElementById('newSlug');
+      nameInput.addEventListener('input', () => {
+        slugInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      });
     });
-  });
 
-  // ── BOOT ──────────────────────────────────────────────────
-  fetchRestaurants();
-</script>
+    // ── BOOT ──────────────────────────────────────────────────
+    fetchRestaurants();
+  </script>
 </body>
+
 </html>
