@@ -5,240 +5,694 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard — Loading...</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
-      --amber: #EF9F27; --amber-light: #FAEEDA;
-      --blue: #378ADD; --blue-light: #E6F1FB;
-      --red: #E24B4A; --red-light: #FCEBEB;
-      --text: #1a1a1a; --text-muted: #6b7280; --text-hint: #9ca3af;
-      --bg: #f4f3f0; --surface: #ffffff;
-      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.15);
+      --primary: #D4A76A;
+      --primary-dark: #B8894E;
+      --primary-glow: rgba(212, 167, 106, 0.3);
+      --bg-deep: #0F0F0F;
+      --bg-main: #161616;
+      --bg-card: #1E1E1E;
+      --bg-card-hover: #252525;
+      --bg-elevated: #2A2A2A;
+      --surface-glass: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --text: #F2F0ED;
+      --text-secondary: #A8A29E;
+      --text-muted: #6B6560;
+
+      --status-new: #F87171;
+      --status-new-bg: rgba(248, 113, 113, 0.12);
+      --status-new-border: rgba(248, 113, 113, 0.3);
+      --status-prep: #FBBF24;
+      --status-prep-bg: rgba(251, 191, 36, 0.12);
+      --status-prep-border: rgba(251, 191, 36, 0.3);
+      --status-ready: #60A5FA;
+      --status-ready-bg: rgba(96, 165, 250, 0.12);
+      --status-ready-border: rgba(96, 165, 250, 0.3);
+      --status-served: #34D399;
+      --status-served-bg: rgba(52, 211, 153, 0.12);
+      --status-served-border: rgba(52, 211, 153, 0.3);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
     }
-    html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
 
-    .topbar { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
-    .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; }
-    .brand-sub { font-size: 11px; color: var(--text-muted); }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .live-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green-dark); background: var(--green-light); padding: 4px 10px; border-radius: 20px; }
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: blink 1.5s ease-in-out infinite; }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .time-display { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-    .sound-btn { padding: 6px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      background: var(--bg-deep);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
 
-    .view-tabs { display: flex; gap: 0; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; }
-    .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-    .tab.active { color: var(--green); border-bottom-color: var(--green); }
-    .tab:hover:not(.active) { color: var(--text); }
+    /* ─── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 24px; }
-    .stat-card { background: var(--surface); border-radius: 12px; border: 0.5px solid var(--border); padding: 14px 16px; }
-    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-    .stat-value { font-size: 26px; font-weight: 500; line-height: 1; }
-    .stat-value.green { color: var(--green); }
-    .stat-value.amber { color: var(--amber); }
-    .stat-value.blue { color: var(--blue); }
-    .stat-value.red { color: var(--red); }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
 
-    .main { padding: 0 24px 24px; }
+    .logo {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text), var(--primary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .live-badge {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--status-served); background: var(--status-served-bg);
+      border: 1px solid var(--status-served-border);
+      padding: 5px 14px; border-radius: 20px;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--status-served);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+    }
+
+    .time-display {
+      font-size: 13px; color: var(--text-secondary);
+      font-weight: 500; font-variant-numeric: tabular-nums;
+    }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong); background: var(--surface-glass);
+      color: var(--text-secondary); font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .icon-btn:hover { background: var(--bg-elevated); color: var(--text); border-color: var(--primary); }
+    .icon-btn.active { background: var(--primary-glow); color: var(--primary); border-color: var(--primary); }
+
+    /* ─── NAV TABS ───────────────────────────────────────── */
+    .nav-tabs {
+      display: flex; gap: 4px;
+      padding: 8px 28px;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-tab {
+      padding: 10px 22px; font-size: 13px; font-weight: 500;
+      color: var(--text-muted); cursor: pointer;
+      border: none; background: none;
+      border-radius: var(--radius-sm);
+      transition: all 0.25s; font-family: 'Inter', sans-serif;
+      position: relative;
+    }
+    .nav-tab:hover { color: var(--text-secondary); background: var(--surface-glass); }
+    .nav-tab.active {
+      color: var(--primary); background: rgba(212, 167, 106, 0.08);
+    }
+    .nav-tab.active::after {
+      content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+      width: 20px; height: 2px; background: var(--primary); border-radius: 1px;
+    }
+    .nav-tab .tab-icon { margin-right: 6px; font-size: 14px; }
+
+    /* ─── STATS BAR ──────────────────────────────────────── */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px; padding: 20px 28px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      position: relative; overflow: hidden;
+      transition: all 0.3s;
+    }
+    .stat-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .stat-card.card-new::before { background: linear-gradient(90deg, var(--status-new), transparent); }
+    .stat-card.card-prep::before { background: linear-gradient(90deg, var(--status-prep), transparent); }
+    .stat-card.card-ready::before { background: linear-gradient(90deg, var(--status-ready), transparent); }
+    .stat-card.card-revenue::before { background: linear-gradient(90deg, var(--primary), transparent); }
+
+    .stat-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 12px;
+    }
+    .stat-icon.new { background: var(--status-new-bg); }
+    .stat-icon.prep { background: var(--status-prep-bg); }
+    .stat-icon.ready { background: var(--status-ready-bg); }
+    .stat-icon.revenue { background: rgba(212, 167, 106, 0.12); }
+
+    .stat-label {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 30px; font-weight: 700; line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-value.new { color: var(--status-new); }
+    .stat-value.prep { color: var(--status-prep); }
+    .stat-value.ready { color: var(--status-ready); }
+    .stat-value.revenue { color: var(--primary); }
+
+    /* ─── MAIN CONTENT ───────────────────────────────────── */
+    .main { padding: 0 28px 40px; }
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-    .order-card { background: var(--surface); border-radius: 14px; border: 0.5px solid var(--border); overflow: hidden; transition: box-shadow 0.2s; }
-    .order-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .order-card.new { border-left: 3px solid var(--red); }
-    .order-card.preparing { border-left: 3px solid var(--amber); }
-    .order-card.ready { border-left: 3px solid var(--blue); }
-    .order-card.served { border-left: 3px solid var(--green); opacity: 0.7; }
+    /* ─── FILTER BAR ─────────────────────────────────────── */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
 
-    .card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px; border-bottom: 0.5px solid var(--border); }
+    .filter-chip {
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+      padding: 7px 16px; border-radius: 20px;
+      cursor: pointer; border: 1px solid var(--border-strong);
+      background: var(--bg-card); color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .filter-chip:hover { background: var(--bg-elevated); color: var(--text-secondary); }
+    .filter-chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #0F0F0F; border-color: var(--primary);
+      font-weight: 600;
+      box-shadow: 0 2px 12px var(--primary-glow);
+    }
+    .filter-chip .chip-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      background: rgba(255,255,255,0.15); font-size: 10px; font-weight: 700;
+      margin-left: 4px; padding: 0 5px;
+    }
+    .filter-chip.active .chip-count { background: rgba(0,0,0,0.2); }
+
+    /* ─── ORDER CARDS ────────────────────────────────────── */
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .order-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: cardIn 0.4s ease backwards;
+    }
+    .order-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .order-card .status-bar { height: 3px; }
+    .order-card.new .status-bar { background: linear-gradient(90deg, var(--status-new), transparent 80%); }
+    .order-card.preparing .status-bar { background: linear-gradient(90deg, var(--status-prep), transparent 80%); }
+    .order-card.ready .status-bar { background: linear-gradient(90deg, var(--status-ready), transparent 80%); }
+    .order-card.served .status-bar { background: linear-gradient(90deg, var(--status-served), transparent 80%); }
+    .order-card.served { opacity: 0.6; }
+    .order-card.served:hover { opacity: 0.85; }
+
+    @keyframes cardIn { from { opacity: 0; transform: scale(0.96) translateY(12px); } }
+
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 18px 12px;
+    }
     .card-header-left { display: flex; align-items: center; gap: 10px; }
-    .order-num { font-size: 18px; font-weight: 500; }
-    .table-tag { font-size: 12px; background: var(--bg); color: var(--text-muted); padding: 3px 8px; border-radius: 6px; font-weight: 500; }
-    .status-pill { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
-    .status-pill.new { background: var(--red-light); color: var(--red); }
-    .status-pill.preparing { background: var(--amber-light); color: #854F0B; }
-    .status-pill.ready { background: var(--blue-light); color: #185FA5; }
-    .status-pill.served { background: var(--green-light); color: var(--green-dark); }
+    .order-id { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .table-chip {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      background: var(--surface-glass); color: var(--text-secondary);
+      padding: 4px 10px; border-radius: 6px;
+      border: 1px solid var(--border);
+    }
 
-    .card-items { padding: 10px 16px; }
-    .item-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 5px 0; border-bottom: 0.5px solid var(--border); }
+    .status-pill {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .status-pill.new { background: var(--status-new-bg); color: var(--status-new); border: 1px solid var(--status-new-border); }
+    .status-pill.preparing { background: var(--status-prep-bg); color: var(--status-prep); border: 1px solid var(--status-prep-border); }
+    .status-pill.ready { background: var(--status-ready-bg); color: var(--status-ready); border: 1px solid var(--status-ready-border); }
+    .status-pill.served { background: var(--status-served-bg); color: var(--status-served); border: 1px solid var(--status-served-border); }
+
+    .card-items { padding: 0 18px 8px; }
+    .item-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
     .item-row:last-child { border-bottom: none; }
-    .item-qty { color: var(--text-muted); font-size: 12px; margin-left: 4px; }
-    .item-price { color: var(--text-muted); font-size: 13px; }
+    .item-name { color: var(--text); font-weight: 500; }
+    .item-qty { color: var(--text-muted); font-size: 12px; margin-left: 6px; font-weight: 400; }
+    .item-price { color: var(--text-secondary); font-size: 13px; font-variant-numeric: tabular-nums; }
 
-    .card-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 14px; border-top: 0.5px solid var(--border); }
-    .card-meta { font-size: 11px; color: var(--text-hint); }
-    .card-total { font-size: 15px; font-weight: 500; color: var(--green-dark); }
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 18px;
+      background: var(--surface-glass);
+      border-top: 1px solid var(--border);
+    }
+    .card-time { font-size: 11px; color: var(--text-muted); }
+    .card-total { font-size: 16px; font-weight: 700; color: var(--primary); }
 
-    .card-actions { display: flex; gap: 6px; padding: 0 16px 14px; }
-    .action-btn { flex: 1; padding: 8px 6px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-    .btn-prepare { background: var(--amber-light); color: #854F0B; }
-    .btn-prepare:hover { background: var(--amber); color: white; }
-    .btn-ready { background: var(--blue-light); color: #185FA5; }
-    .btn-ready:hover { background: var(--blue); color: white; }
-    .btn-serve { background: var(--green-light); color: var(--green-dark); }
-    .btn-serve:hover { background: var(--green); color: white; }
-    .btn-done { background: var(--bg); color: var(--text-muted); cursor: default; }
+    .card-actions { padding: 0 18px 16px; display: flex; gap: 8px; }
 
-    .kitchen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .kitchen-card { background: var(--surface); border-radius: 14px; border: 2px solid var(--border); overflow: hidden; }
-    .kitchen-card.new { border-color: var(--red); }
-    .kitchen-card.preparing { border-color: var(--amber); }
-    .kitchen-card.ready { border-color: var(--blue); }
-    .kitchen-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .kitchen-header.new { background: var(--red-light); }
-    .kitchen-header.preparing { background: var(--amber-light); }
-    .kitchen-header.ready { background: var(--blue-light); }
-    .kitchen-table { font-size: 20px; font-weight: 500; }
-    .kitchen-time { font-size: 12px; color: var(--text-muted); }
-    .kitchen-items { padding: 12px 16px; }
-    .kitchen-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; }
+    .action-btn {
+      flex: 1; padding: 10px 8px;
+      border-radius: var(--radius-sm); border: none;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.25s;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .btn-prepare { background: var(--status-prep-bg); color: var(--status-prep); border: 1px solid var(--status-prep-border); }
+    .btn-prepare:hover { background: var(--status-prep); color: #0F0F0F; box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3); }
+    .btn-ready { background: var(--status-ready-bg); color: var(--status-ready); border: 1px solid var(--status-ready-border); }
+    .btn-ready:hover { background: var(--status-ready); color: #0F0F0F; box-shadow: 0 4px 16px rgba(96, 165, 250, 0.3); }
+    .btn-serve { background: var(--status-served-bg); color: var(--status-served); border: 1px solid var(--status-served-border); }
+    .btn-serve:hover { background: var(--status-served); color: #0F0F0F; box-shadow: 0 4px 16px rgba(52, 211, 153, 0.3); }
+    .btn-done { background: var(--surface-glass); color: var(--text-muted); border: 1px solid var(--border); cursor: default; }
+
+    /* ─── KITCHEN VIEW ───────────────────────────────────── */
+    .kitchen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .kitchen-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s;
+      animation: cardIn 0.4s ease backwards;
+    }
+    .kitchen-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+    .kitchen-card.new { border: 2px solid var(--status-new-border); }
+    .kitchen-card.preparing { border: 2px solid var(--status-prep-border); }
+    .kitchen-card.ready { border: 2px solid var(--status-ready-border); }
+
+    .kitchen-header {
+      padding: 16px 18px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .kitchen-header.new { background: var(--status-new-bg); }
+    .kitchen-header.preparing { background: var(--status-prep-bg); }
+    .kitchen-header.ready { background: var(--status-ready-bg); }
+
+    .kitchen-table-info { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .kitchen-time-info { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .kitchen-items { padding: 14px 18px; }
+    .kitchen-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; font-weight: 500;
+    }
     .kitchen-item:last-child { border-bottom: none; }
-    .kitchen-qty { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; background: var(--bg); }
-    .kitchen-btn { width: 100%; padding: 12px; border: none; border-radius: 0 0 12px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-    .kitchen-btn.start { background: var(--amber); color: white; }
-    .kitchen-btn.done { background: var(--blue); color: white; }
-    .kitchen-btn.served { background: var(--green-light); color: var(--green-dark); cursor: default; }
+    .kitchen-qty-badge {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+      background: var(--bg-elevated); color: var(--primary);
+      border: 1px solid var(--border);
+    }
 
-    .billing-layout { display: grid; grid-template-columns: 1fr 360px; gap: 16px; }
+    .kitchen-action-btn {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 0 0 14px 14px;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.25s;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .kitchen-action-btn.start { background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #0F0F0F; }
+    .kitchen-action-btn.start:hover { box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4); transform: translateY(-1px); }
+    .kitchen-action-btn.done { background: linear-gradient(135deg, #60A5FA, #3B82F6); color: white; }
+    .kitchen-action-btn.done:hover { box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4); transform: translateY(-1px); }
+    .kitchen-action-btn.completed {
+      background: var(--status-served-bg); color: var(--status-served);
+      cursor: default; letter-spacing: 0.1em;
+    }
+
+    /* ─── BILLING ────────────────────────────────────────── */
+    .billing-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px; align-items: start;
+    }
+
     .billing-orders { display: flex; flex-direction: column; gap: 10px; }
-    .billing-row { background: var(--surface); border-radius: 12px; border: 0.5px solid var(--border); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.15s; }
-    .billing-row:hover { border-color: var(--green); }
-    .billing-row.selected { border-color: var(--green); border-width: 1.5px; background: var(--green-light); }
-    .billing-order-num { font-size: 16px; font-weight: 500; }
-    .billing-items-count { font-size: 12px; color: var(--text-muted); }
-    .billing-amount { font-size: 16px; font-weight: 500; color: var(--green-dark); }
 
-    .bill-panel { background: var(--surface); border-radius: 14px; border: 0.5px solid var(--border); padding: 20px; position: sticky; top: 76px; height: fit-content; }
-    .bill-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-    .bill-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-    .bill-divider { border: none; border-top: 0.5px solid var(--border); margin: 12px 0; }
-    .bill-item-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; }
-    .bill-item-name { color: var(--text); }
-    .bill-item-meta { color: var(--text-muted); font-size: 12px; }
-    .bill-item-price { font-weight: 500; }
-    .bill-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 500; margin-top: 8px; }
-    .bill-total-amount { color: var(--green); font-size: 20px; }
-    .bill-tax-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-    .print-btn { width: 100%; margin-top: 16px; padding: 12px; background: var(--green); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
-    .print-btn:hover { background: var(--green-dark); }
-    .mark-paid-btn { width: 100%; margin-top: 8px; padding: 12px; background: var(--surface); color: var(--green-dark); border: 1px solid var(--green); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .billing-row {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: all 0.25s;
+    }
+    .billing-row:hover { border-color: var(--primary); background: var(--bg-card-hover); }
+    .billing-row.selected {
+      border-color: var(--primary); border-width: 2px;
+      background: rgba(212, 167, 106, 0.06);
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    .billing-order-id { font-size: 16px; font-weight: 700; }
+    .billing-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .billing-amount { font-size: 18px; font-weight: 700; color: var(--primary); }
 
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 14px; }
-    .empty-icon { font-size: 40px; margin-bottom: 12px; }
-    .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .filter-btn { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
-    .filter-btn.active { background: var(--green); color: white; border-color: var(--green); }
+    .bill-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 24px;
+      position: sticky; top: 80px; height: fit-content;
+    }
+    .bill-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .bill-icon {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: rgba(212, 167, 106, 0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .bill-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+    .bill-subtitle { font-size: 12px; color: var(--text-muted); }
 
-    .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; }
-    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .bill-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    .bill-item-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; }
+    .bill-item-name { color: var(--text); font-weight: 500; }
+    .bill-item-meta { color: var(--text-muted); font-size: 11px; }
+    .bill-item-price { font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+    .bill-summary { margin-top: 8px; }
+    .bill-summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); padding: 4px 0; }
+    .bill-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0 0; margin-top: 8px;
+      border-top: 2px solid var(--border-strong);
+      font-size: 18px; font-weight: 700;
+    }
+    .bill-total-amount {
+      font-size: 24px; font-weight: 700; color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bill-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+
+    .print-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #0F0F0F; border: none; border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.25s;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .print-btn:hover { box-shadow: 0 6px 24px var(--primary-glow); transform: translateY(-2px); }
+
+    .mark-paid-btn {
+      width: 100%; padding: 14px;
+      background: transparent; color: var(--primary);
+      border: 1.5px solid var(--primary); border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.25s;
+    }
+    .mark-paid-btn:hover { background: rgba(212, 167, 106, 0.08); }
+
+    /* ─── EMPTY STATE ────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-muted); font-size: 14px;
+      grid-column: 1 / -1;
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.6; }
+    .empty-text { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; }
+    .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+    /* ─── LOADING / ERROR ────────────────────────────────── */
+    .loading-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100vh; gap: 20px;
+      background: var(--bg-deep);
+    }
+    .loading-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border-strong);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .error-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 12px; text-align: center; padding: 20px; }
+    .loading-text { font-size: 14px; color: var(--text-muted); }
 
-    @media (max-width: 768px) {
-      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .error-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100vh; gap: 16px;
+      text-align: center; padding: 20px; background: var(--bg-deep);
+    }
+    .error-emoji { font-size: 56px; margin-bottom: 8px; }
+    .error-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+    .error-sub { font-size: 14px; color: var(--text-muted); max-width: 360px; line-height: 1.6; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 1024px) {
       .billing-layout { grid-template-columns: 1fr; }
       .bill-panel { position: static; }
-      .topbar { padding: 0 16px; }
-      .stats-bar, .main { padding-left: 16px; padding-right: 16px; }
     }
+
+    @media (max-width: 768px) {
+      .topbar { padding: 0 16px; height: 56px; }
+      .brand-name { font-size: 15px; }
+      .brand-sub { display: none; }
+      .time-display { display: none; }
+
+      .nav-tabs { padding: 6px 12px; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+      .nav-tabs::-webkit-scrollbar { display: none; }
+      .nav-tab { padding: 8px 14px; font-size: 12px; white-space: nowrap; }
+      .nav-tab .tab-label-full { display: none; }
+      .nav-tab .tab-label-short { display: inline; }
+
+      .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 14px 16px; }
+      .stat-card { padding: 14px 16px; }
+      .stat-value { font-size: 24px; }
+      .stat-icon { width: 30px; height: 30px; font-size: 15px; margin-bottom: 8px; }
+
+      .main { padding: 0 16px 30px; }
+      .orders-grid { grid-template-columns: 1fr; gap: 12px; }
+      .kitchen-grid { grid-template-columns: 1fr; gap: 12px; }
+
+      .filter-bar { gap: 6px; }
+      .filter-chip { font-size: 11px; padding: 6px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 12px; }
+      .stat-value { font-size: 22px; }
+      .stat-label { font-size: 10px; }
+      .topbar-right .live-badge { display: none; }
+      .logo { width: 34px; height: 34px; font-size: 17px; }
+    }
+
+    /* Short labels for mobile */
+    .tab-label-short { display: none; }
+    @media (min-width: 769px) {
+      .tab-label-short { display: none !important; }
+      .tab-label-full { display: inline !important; }
+    }
+
+    /* ─── PRINT ──────────────────────────────────────────── */
     @media print {
-      .topbar, .view-tabs, .stats-bar, .filter-bar, .card-actions, .print-btn, .mark-paid-btn, .billing-orders, .tab { display: none !important; }
+      body { background: white; color: black; }
+      .topbar, .nav-tabs, .stats-bar, .filter-bar, .card-actions, .print-btn,
+      .mark-paid-btn, .billing-orders, .nav-tab, .bill-actions { display: none !important; }
       .billing-layout { grid-template-columns: 1fr; }
-      .bill-panel { border: none; box-shadow: none; }
+      .bill-panel { border: none; box-shadow: none; background: white; position: static; }
+      .bill-title, .bill-subtitle, .bill-item-name, .bill-item-price,
+      .bill-summary-row, .bill-total-row { color: black !important; }
+      .bill-total-amount { color: #1a1a1a !important; }
     }
   </style>
 </head>
 <body>
 
+<!-- LOADING STATE -->
 <div class="loading-screen" id="loadingScreen">
   <div class="loading-spinner"></div>
-  <div style="font-size:14px;color:var(--text-muted);">Loading dashboard...</div>
+  <div class="loading-text">Loading dashboard...</div>
 </div>
 
+<!-- ERROR STATE -->
 <div class="error-screen" id="errorScreen" style="display:none;">
-  <div style="font-size:48px;">🏪</div>
-  <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;">Restaurant Not Found</div>
-  <div style="font-size:14px;color:var(--text-muted);" id="errorMsg">Please check the dashboard URL.</div>
+  <div class="error-emoji">🏪</div>
+  <div class="error-title">Restaurant Not Found</div>
+  <div class="error-sub" id="errorMsg">Please check the dashboard URL.</div>
 </div>
 
+<!-- MAIN APP -->
 <div id="mainApp" style="display:none;">
 
-<div class="topbar">
+<!-- Top Bar -->
+<header class="topbar">
   <div class="topbar-left">
     <div class="logo" id="dashLogo">🍛</div>
     <div>
-      <div class="brand" id="dashName">Loading...</div>
-      <div class="brand-sub">Order Management Dashboard</div>
+      <div class="brand-name" id="dashName">Loading...</div>
+      <div class="brand-sub">Order Dashboard</div>
     </div>
   </div>
   <div class="topbar-right">
-    <button class="sound-btn" id="soundBtn" onclick="toggleSound()">🔔 Sound On</button>
-    <div class="live-badge"><div class="live-dot"></div> Live</div>
+    <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Toggle notifications">🔔</button>
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
     <div class="time-display" id="clock"></div>
   </div>
-</div>
+</header>
 
-<div class="view-tabs">
-  <button class="tab active" onclick="switchView('all')">All Orders</button>
-  <button class="tab" onclick="switchView('kitchen')">Kitchen View</button>
-  <button class="tab" onclick="switchView('billing')">Billing Counter</button>
-</div>
+<!-- Nav Tabs -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="switchView('all', this)">
+    <span class="tab-icon">📋</span>
+    <span class="tab-label-full">All Orders</span>
+    <span class="tab-label-short">Orders</span>
+  </button>
+  <button class="nav-tab" onclick="switchView('kitchen', this)">
+    <span class="tab-icon">👨‍🍳</span>
+    <span class="tab-label-full">Kitchen View</span>
+    <span class="tab-label-short">Kitchen</span>
+  </button>
+  <button class="nav-tab" onclick="switchView('billing', this)">
+    <span class="tab-icon">🧾</span>
+    <span class="tab-label-full">Billing Counter</span>
+    <span class="tab-label-short">Billing</span>
+  </button>
+</nav>
 
-<div class="stats-bar">
-  <div class="stat-card"><div class="stat-label">New Orders</div><div class="stat-value red" id="stat-new">0</div></div>
-  <div class="stat-card"><div class="stat-label">Preparing</div><div class="stat-value amber" id="stat-preparing">0</div></div>
-  <div class="stat-card"><div class="stat-label">Ready</div><div class="stat-value blue" id="stat-ready">0</div></div>
-  <div class="stat-card"><div class="stat-label">Today's Revenue</div><div class="stat-value green" id="stat-revenue">₹0</div></div>
-</div>
+<!-- Stats -->
+<section class="stats-bar">
+  <div class="stat-card card-new">
+    <div class="stat-icon new">🔴</div>
+    <div class="stat-label">New Orders</div>
+    <div class="stat-value new" id="stat-new">0</div>
+  </div>
+  <div class="stat-card card-prep">
+    <div class="stat-icon prep">🔥</div>
+    <div class="stat-label">Preparing</div>
+    <div class="stat-value prep" id="stat-preparing">0</div>
+  </div>
+  <div class="stat-card card-ready">
+    <div class="stat-icon ready">🍽️</div>
+    <div class="stat-label">Ready</div>
+    <div class="stat-value ready" id="stat-ready">0</div>
+  </div>
+  <div class="stat-card card-revenue">
+    <div class="stat-icon revenue">💰</div>
+    <div class="stat-label">Today's Revenue</div>
+    <div class="stat-value revenue" id="stat-revenue">₹0</div>
+  </div>
+</section>
 
-<div class="main">
+<!-- Content Views -->
+<main class="main">
+
+  <!-- All Orders View -->
   <div class="view active" id="view-all">
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-      <button class="filter-btn" onclick="setFilter('new', this)">New</button>
-      <button class="filter-btn" onclick="setFilter('preparing', this)">Preparing</button>
-      <button class="filter-btn" onclick="setFilter('ready', this)">Ready</button>
-      <button class="filter-btn" onclick="setFilter('served', this)">Served</button>
-    </div>
+    <div class="filter-bar" id="orderFilters"></div>
     <div class="orders-grid" id="allOrdersGrid">
-      <div class="empty-state"><div class="empty-icon">🍽</div>No orders yet.</div>
+      <div class="empty-state">
+        <div class="empty-icon">🍽</div>
+        <div class="empty-text">No orders yet</div>
+        <div class="empty-sub">Orders will appear here in real-time</div>
+      </div>
     </div>
   </div>
 
+  <!-- Kitchen View -->
   <div class="view" id="view-kitchen">
     <div class="kitchen-grid" id="kitchenGrid">
-      <div class="empty-state"><div class="empty-icon">👨‍🍳</div>No active orders.</div>
+      <div class="empty-state">
+        <div class="empty-icon">👨‍🍳</div>
+        <div class="empty-text">Kitchen is clear!</div>
+        <div class="empty-sub">No active orders to prepare</div>
+      </div>
     </div>
   </div>
 
+  <!-- Billing View -->
   <div class="view" id="view-billing">
     <div class="billing-layout">
       <div>
-        <div class="filter-bar">
-          <button class="filter-btn active" onclick="setBillingFilter('active', this)">Active</button>
-          <button class="filter-btn" onclick="setBillingFilter('served', this)">Served (Unpaid)</button>
-        </div>
+        <div class="filter-bar" id="billingFilters"></div>
         <div class="billing-orders" id="billingList">
-          <div class="empty-state"><div class="empty-icon">🧾</div>No orders to bill.</div>
+          <div class="empty-state">
+            <div class="empty-icon">🧾</div>
+            <div class="empty-text">No orders to bill</div>
+            <div class="empty-sub">Completed orders will show here</div>
+          </div>
         </div>
       </div>
       <div class="bill-panel" id="billPanel">
-        <div class="bill-title">Bill</div>
-        <div class="bill-sub">Select an order to generate bill</div>
+        <div class="bill-header">
+          <div class="bill-icon">🧾</div>
+          <div>
+            <div class="bill-title">Bill</div>
+            <div class="bill-subtitle">Select an order to generate bill</div>
+          </div>
+        </div>
         <div id="billContent"></div>
       </div>
     </div>
   </div>
-</div>
 
+</main>
 </div><!-- /mainApp -->
 
 <script>
@@ -254,14 +708,11 @@
 
   // ── READ URL ──────────────────────────────────────────────
   const pathParts = window.location.pathname.split('/');
-  restaurantSlug = pathParts[2] || null; // /dashboard/slug
+  restaurantSlug = pathParts[2] || null;
 
   // ── LOAD RESTAURANT ────────────────────────────────────────
   async function loadDashboard() {
-    if (!restaurantSlug) {
-      showError('No restaurant specified in the URL.');
-      return;
-    }
+    if (!restaurantSlug) { showError('No restaurant specified in the URL.'); return; }
     try {
       const res = await fetch('/api/restaurants?slug=' + encodeURIComponent(restaurantSlug));
       if (!res.ok) throw new Error('not found');
@@ -275,6 +726,7 @@
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
 
+      renderFilterBars();
       fetchOrders();
       setInterval(fetchOrders, 5000);
     } catch (e) {
@@ -299,7 +751,9 @@
   // ── SOUND ──────────────────────────────────────────────────
   function toggleSound() {
     soundEnabled = !soundEnabled;
-    document.getElementById('soundBtn').textContent = soundEnabled ? '🔔 Sound On' : '🔕 Sound Off';
+    const btn = document.getElementById('soundBtn');
+    btn.textContent = soundEnabled ? '🔔' : '🔕';
+    btn.classList.toggle('active', soundEnabled);
   }
 
   function playNewOrderSound() {
@@ -345,57 +799,92 @@
     } catch(e) { console.error('Failed to update status', e); }
   }
 
-  // ── STATS ──────────────────────────────────────────────────
-  function updateStats() {
-    document.getElementById('stat-new').textContent = orders.filter(o => o.status === 'new').length;
-    document.getElementById('stat-preparing').textContent = orders.filter(o => o.status === 'preparing').length;
-    document.getElementById('stat-ready').textContent = orders.filter(o => o.status === 'ready').length;
-    const revenue = orders.filter(o => o.status === 'served').reduce((s, o) => s + o.total, 0);
-    document.getElementById('stat-revenue').textContent = '₹' + revenue;
-  }
-
+  // ── HELPERS ────────────────────────────────────────────────
   function formatTime(iso) {
     return new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
-
   function timeAgo(iso) {
     const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
     if (mins < 1) return 'just now';
     if (mins === 1) return '1 min ago';
     return `${mins} mins ago`;
   }
-
   const STATUS_LABELS = { new: 'New', preparing: 'Preparing', ready: 'Ready', served: 'Served' };
+
+  // ── FILTER BARS ────────────────────────────────────────────
+  function renderFilterBars() {
+    renderOrderFilters();
+    renderBillingFilters();
+  }
+
+  function renderOrderFilters() {
+    const counts = {
+      all: orders.length,
+      new: orders.filter(o => o.status === 'new').length,
+      preparing: orders.filter(o => o.status === 'preparing').length,
+      ready: orders.filter(o => o.status === 'ready').length,
+      served: orders.filter(o => o.status === 'served').length,
+    };
+    const filters = ['all', 'new', 'preparing', 'ready', 'served'];
+    document.getElementById('orderFilters').innerHTML = filters.map(f =>
+      `<button class="filter-chip ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}', this)">
+        ${f.charAt(0).toUpperCase() + f.slice(1)}
+        <span class="chip-count">${counts[f]}</span>
+      </button>`
+    ).join('');
+  }
+
+  function renderBillingFilters() {
+    document.getElementById('billingFilters').innerHTML = `
+      <button class="filter-chip ${billingFilter === 'active' ? 'active' : ''}" onclick="setBillingFilter('active', this)">Active</button>
+      <button class="filter-chip ${billingFilter === 'served' ? 'active' : ''}" onclick="setBillingFilter('served', this)">Served (Unpaid)</button>
+    `;
+  }
+
+  // ── STATS ──────────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById('stat-new').textContent = orders.filter(o => o.status === 'new').length;
+    document.getElementById('stat-preparing').textContent = orders.filter(o => o.status === 'preparing').length;
+    document.getElementById('stat-ready').textContent = orders.filter(o => o.status === 'ready').length;
+    const revenue = orders.filter(o => o.status === 'served').reduce((s, o) => s + o.total, 0);
+    document.getElementById('stat-revenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+  }
 
   // ── RENDER ALL ORDERS ──────────────────────────────────────
   function renderAllOrders() {
     const grid = document.getElementById('allOrdersGrid');
     let filtered = currentFilter === 'all' ? orders : orders.filter(o => o.status === currentFilter);
     filtered = [...filtered].reverse();
+    renderOrderFilters();
 
     if (filtered.length === 0) {
-      grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽</div>${currentFilter === 'all' ? 'No orders yet.' : 'No ' + currentFilter + ' orders.'}</div>`;
+      grid.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🍽</div>
+        <div class="empty-text">${currentFilter === 'all' ? 'No orders yet' : 'No ' + currentFilter + ' orders'}</div>
+        <div class="empty-sub">Orders will appear here in real-time</div>
+      </div>`;
       return;
     }
 
-    grid.innerHTML = filtered.map(o => `
-      <div class="order-card ${o.status}">
+    grid.innerHTML = filtered.map((o, i) => `
+      <div class="order-card ${o.status}" style="animation-delay:${i * 0.05}s">
+        <div class="status-bar"></div>
         <div class="card-header">
           <div class="card-header-left">
-            <div class="order-num">#${o.id}</div>
-            <div class="table-tag">Table ${o.table_number}</div>
+            <div class="order-id">#${o.id}</div>
+            <div class="table-chip">Table ${o.table_number}</div>
           </div>
           <div class="status-pill ${o.status}">${STATUS_LABELS[o.status]}</div>
         </div>
         <div class="card-items">
           ${o.items.map(i => `
             <div class="item-row">
-              <span>${i.name}<span class="item-qty">×${i.qty}</span></span>
+              <span><span class="item-name">${i.name}</span><span class="item-qty">×${i.qty}</span></span>
               <span class="item-price">₹${i.price * i.qty}</span>
             </div>`).join('')}
         </div>
         <div class="card-footer">
-          <div class="card-meta">${formatTime(o.created_at)} · ${timeAgo(o.created_at)}</div>
+          <div class="card-time">${formatTime(o.created_at)} · ${timeAgo(o.created_at)}</div>
           <div class="card-total">₹${o.total}</div>
         </div>
         <div class="card-actions">${getActionButtons(o)}</div>
@@ -403,10 +892,10 @@
   }
 
   function getActionButtons(o) {
-    if (o.status === 'new') return `<button class="action-btn btn-prepare" onclick="updateStatus(${o.id}, 'preparing')">Start Preparing</button>`;
-    if (o.status === 'preparing') return `<button class="action-btn btn-ready" onclick="updateStatus(${o.id}, 'ready')">Mark Ready</button>`;
-    if (o.status === 'ready') return `<button class="action-btn btn-serve" onclick="updateStatus(${o.id}, 'served')">Mark Served</button>`;
-    return `<button class="action-btn btn-done" disabled>Served ✓</button>`;
+    if (o.status === 'new') return `<button class="action-btn btn-prepare" onclick="updateStatus(${o.id}, 'preparing')">🔥 Start Preparing</button>`;
+    if (o.status === 'preparing') return `<button class="action-btn btn-ready" onclick="updateStatus(${o.id}, 'ready')">✅ Mark Ready</button>`;
+    if (o.status === 'ready') return `<button class="action-btn btn-serve" onclick="updateStatus(${o.id}, 'served')">🍽 Mark Served</button>`;
+    return `<button class="action-btn btn-done" disabled>✓ Served</button>`;
   }
 
   // ── RENDER KITCHEN ─────────────────────────────────────────
@@ -414,28 +903,32 @@
     const grid = document.getElementById('kitchenGrid');
     const active = [...orders].reverse().filter(o => ['new','preparing','ready'].includes(o.status));
     if (active.length === 0) {
-      grid.innerHTML = `<div class="empty-state"><div class="empty-icon">👨‍🍳</div>Kitchen is clear!</div>`;
+      grid.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">👨‍🍳</div>
+        <div class="empty-text">Kitchen is clear!</div>
+        <div class="empty-sub">All orders have been completed</div>
+      </div>`;
       return;
     }
-    grid.innerHTML = active.map(o => `
-      <div class="kitchen-card ${o.status}">
+    grid.innerHTML = active.map((o, idx) => `
+      <div class="kitchen-card ${o.status}" style="animation-delay:${idx * 0.06}s">
         <div class="kitchen-header ${o.status}">
           <div>
-            <div class="kitchen-table">Table ${o.table_number} · #${o.id}</div>
-            <div class="kitchen-time">${formatTime(o.created_at)} · ${timeAgo(o.created_at)}</div>
+            <div class="kitchen-table-info">Table ${o.table_number} · #${o.id}</div>
+            <div class="kitchen-time-info">${formatTime(o.created_at)} · ${timeAgo(o.created_at)}</div>
           </div>
           <div class="status-pill ${o.status}">${STATUS_LABELS[o.status]}</div>
         </div>
         <div class="kitchen-items">
           ${o.items.map(i => `
             <div class="kitchen-item">
-              <div class="kitchen-qty">${i.qty}</div>
+              <div class="kitchen-qty-badge">${i.qty}</div>
               <div>${i.name}</div>
             </div>`).join('')}
         </div>
-        ${o.status === 'new' ? `<button class="kitchen-btn start" onclick="updateStatus(${o.id}, 'preparing')">Start Cooking</button>` :
-          o.status === 'preparing' ? `<button class="kitchen-btn done" onclick="updateStatus(${o.id}, 'ready')">Done — Mark Ready</button>` :
-          `<button class="kitchen-btn served">Ready for Service ✓</button>`}
+        ${o.status === 'new' ? `<button class="kitchen-action-btn start" onclick="updateStatus(${o.id}, 'preparing')">🔥 Start Cooking</button>` :
+          o.status === 'preparing' ? `<button class="kitchen-action-btn done" onclick="updateStatus(${o.id}, 'ready')">✅ Done — Mark Ready</button>` :
+          `<button class="kitchen-action-btn completed">Ready for Service ✓</button>`}
       </div>`).join('');
   }
 
@@ -446,17 +939,22 @@
       ? orders.filter(o => ['new','preparing','ready'].includes(o.status))
       : orders.filter(o => o.status === 'served');
     filtered = [...filtered].reverse();
+    renderBillingFilters();
 
     if (filtered.length === 0) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div>No orders here.</div>`;
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🧾</div>
+        <div class="empty-text">No orders here</div>
+        <div class="empty-sub">Select a filter to view orders</div>
+      </div>`;
       return;
     }
 
     list.innerHTML = filtered.map(o => `
       <div class="billing-row ${selectedOrderId === o.id ? 'selected' : ''}" onclick="selectOrder(${o.id})">
         <div>
-          <div class="billing-order-num">#${o.id} · Table ${o.table_number}</div>
-          <div class="billing-items-count">${o.items.reduce((s,i) => s + i.qty, 0)} items · ${formatTime(o.created_at)}</div>
+          <div class="billing-order-id">#${o.id} · Table ${o.table_number}</div>
+          <div class="billing-meta">${o.items.reduce((s,i) => s + i.qty, 0)} items · ${formatTime(o.created_at)}</div>
         </div>
         <div class="billing-amount">₹${o.total}</div>
       </div>`).join('');
@@ -477,9 +975,13 @@
     const grandTotal = o.total + tax;
 
     document.getElementById('billPanel').innerHTML = `
-      <div class="bill-title">Bill #${o.id}</div>
-      <div class="bill-sub">Table ${o.table_number} · ${formatTime(o.created_at)}</div>
-      <hr class="bill-divider">
+      <div class="bill-header">
+        <div class="bill-icon">🧾</div>
+        <div>
+          <div class="bill-title">Bill #${o.id}</div>
+          <div class="bill-subtitle">Table ${o.table_number} · ${formatTime(o.created_at)}</div>
+        </div>
+      </div>
       <div id="billContent">
         ${o.items.map(i => `
           <div class="bill-item-row">
@@ -488,34 +990,38 @@
           </div>`).join('')}
       </div>
       <hr class="bill-divider">
-      <div class="bill-tax-row"><span>Subtotal</span><span>₹${o.total}</span></div>
-      <div class="bill-tax-row"><span>GST (5%)</span><span>₹${tax}</span></div>
-      <div class="bill-total-row"><span>Total</span><span class="bill-total-amount">₹${grandTotal}</span></div>
-      <button class="print-btn" onclick="window.print()">Print Bill</button>
-      <button class="mark-paid-btn" onclick="updateStatus(${o.id}, 'served')">Mark as Paid & Served</button>`;
+      <div class="bill-summary">
+        <div class="bill-summary-row"><span>Subtotal</span><span>₹${o.total}</span></div>
+        <div class="bill-summary-row"><span>GST (5%)</span><span>₹${tax}</span></div>
+      </div>
+      <div class="bill-total-row">
+        <span>Total</span>
+        <span class="bill-total-amount">₹${grandTotal.toLocaleString('en-IN')}</span>
+      </div>
+      <div class="bill-actions">
+        <button class="print-btn" onclick="window.print()">🖨 Print Bill</button>
+        <button class="mark-paid-btn" onclick="updateStatus(${o.id}, 'served')">✓ Mark as Paid & Served</button>
+      </div>`;
   }
 
+  // ── RENDER ALL ─────────────────────────────────────────────
   function renderAll() { updateStats(); renderAllOrders(); renderKitchen(); renderBilling(); }
 
   function setFilter(f, btn) {
     currentFilter = f;
-    document.querySelectorAll('#view-all .filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
     renderAllOrders();
   }
 
   function setBillingFilter(f, btn) {
     billingFilter = f; selectedOrderId = null;
-    document.querySelectorAll('#view-billing .filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
     renderBilling();
   }
 
-  function switchView(view) {
+  function switchView(view, btn) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
-    event.target.classList.add('active');
+    btn.classList.add('active');
   }
 
   // ── BOOT ──────────────────────────────────────────────────
