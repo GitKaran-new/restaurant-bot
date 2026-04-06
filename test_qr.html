@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div id="qr"></div>
+  <script>
+    try {
+      new QRCode(document.getElementById('qr'), {
+        text: "https://restaurant-bot-six.vercel.app/r/foodista-restaurant?table=10",
+        width: 140,
+        height: 140,
+        colorDark : "#1a1a1a",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+      console.log("SUCCESS");
+    } catch(e) {
+      console.error(e);
+      document.body.innerHTML += e.toString();
+    }
+  </script>
+</body>
+</html>
