@@ -28,14 +28,17 @@ export default async function handler(req, res) {
 
   // POST — add menu item
   if (req.method === 'POST') {
-    const { restaurant_id, category, name, price, description, is_spicy, sort_order } = req.body;
+    const { restaurant_id, category, name, price, description, is_spicy, sort_order, image_url } = req.body;
     if (!restaurant_id || !name || !price || !category) {
       return res.status(400).json({ error: 'restaurant_id, category, name, price required' });
     }
 
+    const insertData = { restaurant_id, category, name, price: parseInt(price), description, is_spicy: !!is_spicy, sort_order: sort_order || 0 };
+    if (image_url) insertData.image_url = image_url;
+
     const { data, error } = await supabase
       .from('menu_items')
-      .insert({ restaurant_id, category, name, price: parseInt(price), description, is_spicy: !!is_spicy, sort_order: sort_order || 0 })
+      .insert(insertData)
       .select()
       .single();
 

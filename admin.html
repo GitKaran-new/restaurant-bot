@@ -361,12 +361,38 @@
       border-radius: 10px;
       border: 0.5px solid var(--border);
       margin-bottom: 8px;
+      gap: 12px;
     }
 
     .menu-item-left {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-item-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .menu-item-no-img {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--green-light), #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 1px solid var(--border);
     }
 
     .menu-item-name {
@@ -396,6 +422,74 @@
     .menu-item-actions {
       display: flex;
       gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Image Upload styles */
+    .img-upload-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .img-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px dashed var(--border-strong);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .img-upload-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-light);
+    }
+
+    .img-upload-btn.uploading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .img-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+
+    .img-preview-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .img-remove-btn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--red);
+      color: white;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
 
     /* QR Section */
@@ -586,6 +680,19 @@
               </select>
             </div>
           </div>
+          <!-- Image upload for new item -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Dish Photo</label>
+              <div class="img-upload-wrap" id="newItemImgWrap">
+                <label class="img-upload-btn" id="newItemUploadBtn">
+                  📷 Choose Image
+                  <input type="file" accept="image/*" style="display:none;" onchange="handleNewItemImage(this)" />
+                </label>
+                <div id="newItemPreview" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
           <button class="btn btn-primary" onclick="addMenuItem()">Add Item</button>
         </div>
       </div>
@@ -642,10 +749,105 @@
     let menuItems = [];
     let activeCategory = 'all';
     let activeTab = 'menu';
+    let newItemImageUrl = null; // Holds uploaded image URL for new item
 
     const CATEGORIES = ['starters', 'mains', 'breads', 'rice', 'drinks', 'desserts'];
 
+    // ── Supabase config for direct image uploads ──────────────
+    const SUPABASE_URL = 'https://zenobldexjhfudpcnamk.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Nv-pFwVMt1m0-8o4kOFdXg_dJF9l5L4';
+    const STORAGE_BUCKET = 'dish-images';
+
     function sel() { return restaurants.find(r => r.id === selectedId); }
+
+    // ── IMAGE UPLOAD TO SUPABASE STORAGE ─────────────────────
+    async function uploadImageToSupabase(file) {
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const filePath = `${fileName}`;
+
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filePath}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': file.type,
+          'x-upsert': 'true'
+        },
+        body: file
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Upload failed');
+      }
+
+      // Return public URL
+      return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${filePath}`;
+    }
+
+    // ── Handle new item image selection ──────────────────────
+    async function handleNewItemImage(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const btn = document.getElementById('newItemUploadBtn');
+      const previewWrap = document.getElementById('newItemPreview');
+      btn.classList.add('uploading');
+      btn.innerHTML = '⏳ Uploading...';
+
+      try {
+        const url = await uploadImageToSupabase(file);
+        newItemImageUrl = url;
+        previewWrap.style.display = 'block';
+        previewWrap.innerHTML = `
+          <div class="img-preview-wrap">
+            <img src="${url}" class="img-preview" />
+            <button class="img-remove-btn" onclick="removeNewItemImage()" title="Remove">✕</button>
+          </div>`;
+        btn.style.display = 'none';
+        toast('Image uploaded!');
+      } catch (e) {
+        toast('Upload failed: ' + e.message);
+      } finally {
+        btn.classList.remove('uploading');
+        btn.innerHTML = '📷 Choose Image<input type="file" accept="image/*" style="display:none;" onchange="handleNewItemImage(this)" />';
+      }
+    }
+
+    function removeNewItemImage() {
+      newItemImageUrl = null;
+      document.getElementById('newItemPreview').style.display = 'none';
+      document.getElementById('newItemPreview').innerHTML = '';
+      const btn = document.getElementById('newItemUploadBtn');
+      btn.style.display = 'inline-flex';
+    }
+
+    // ── Handle existing item image upload ────────────────────
+    async function handleExistingItemImage(input, itemId) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const btn = input.closest('.img-upload-btn');
+      btn.classList.add('uploading');
+      const origText = btn.childNodes[0].textContent;
+      btn.childNodes[0].textContent = '⏳ Uploading...';
+
+      try {
+        const url = await uploadImageToSupabase(file);
+        // Save URL to menu item via PATCH
+        await api('/api/menu', 'PATCH', { id: itemId, image_url: url });
+        toast('Image uploaded!');
+        // Refresh menu
+        const data = await api('/api/menu?restaurant_id=' + selectedId);
+        menuItems = data.items || [];
+        renderMenuItems();
+      } catch (e) {
+        toast('Upload failed: ' + e.message);
+        btn.classList.remove('uploading');
+        btn.childNodes[0].textContent = origText;
+      }
+    }
 
     // ── API HELPERS ────────────────────────────────────────────
     async function api(url, method = 'GET', body = null) {
@@ -737,14 +939,18 @@
       const is_spicy = document.getElementById('itemSpicy').value === 'true';
       if (!name || !price) return toast('Name and price required');
 
-      const data = await api('/api/menu', 'POST', {
+      const payload = {
         restaurant_id: selectedId, name, price: parseInt(price), description: desc, category, is_spicy, sort_order: menuItems.length
-      });
+      };
+      if (newItemImageUrl) payload.image_url = newItemImageUrl;
+
+      const data = await api('/api/menu', 'POST', payload);
       if (data.error) return toast('Error: ' + data.error);
 
       document.getElementById('itemName').value = '';
       document.getElementById('itemPrice').value = '';
       document.getElementById('itemDesc').value = '';
+      removeNewItemImage();
       toast(name + ' added!');
 
       const items = await api('/api/menu?restaurant_id=' + selectedId);
@@ -820,13 +1026,21 @@
       list.innerHTML = filtered.map(i => `
       <div class="menu-item-row">
         <div class="menu-item-left">
-          <div>
+          ${i.image_url
+            ? `<img src="${i.image_url}" class="menu-item-thumb" alt="${i.name}" />`
+            : `<div class="menu-item-no-img">🍽️</div>`
+          }
+          <div style="min-width:0;">
             <div class="menu-item-name">${i.name} ${i.is_spicy ? '<span class="spicy-badge">🌶 Spicy</span>' : ''}</div>
             <div class="menu-item-desc">${i.description || ''} · ${i.category}</div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div class="menu-item-actions">
           <div class="menu-item-price">₹${i.price}</div>
+          <label class="img-upload-btn btn-sm" title="Upload photo">
+            📷
+            <input type="file" accept="image/*" style="display:none;" onchange="handleExistingItemImage(this, '${i.id}')" />
+          </label>
           <button class="btn btn-danger btn-sm" onclick="deleteItem('${i.id}')">Delete</button>
         </div>
       </div>
@@ -841,14 +1055,12 @@
       // Check if QRCode library is loaded
       if (typeof QRCode === 'undefined') {
         toast('QR library failed to load. Retrying...');
-        // Try to dynamically load it
         try {
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
             script.onload = resolve;
             script.onerror = () => {
-              // Try unpkg as fallback
               const script2 = document.createElement('script');
               script2.src = 'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js';
               script2.onload = resolve;
@@ -871,18 +1083,15 @@
       for (let t = 1; t <= count; t++) {
         const url = `${base}/r/${r.slug}?table=${t}`;
 
-        // 1. Create card container
         const card = document.createElement('div');
         card.className = 'qr-card';
 
-        // 2. Prepare QR Container
         const qrContainer = document.createElement('div');
         qrContainer.style.margin = '0 auto 12px';
         qrContainer.style.display = 'flex';
         qrContainer.style.justifyContent = 'center';
         card.appendChild(qrContainer);
 
-        // 3. Create text node container
         const textContainer = document.createElement('div');
         textContainer.innerHTML = `
         <div class="qr-table">Table ${t}</div>
@@ -891,18 +1100,16 @@
       `;
         card.appendChild(textContainer);
 
-        // 4. Append card to grid FIRST so it enters the DOM
         grid.appendChild(card);
 
-        // 5. Generate QR Code with qrcodejs NOW that it's in the DOM
         try {
           new QRCode(qrContainer, {
             text: url,
             width: 140,
             height: 140,
-            colorDark : "#1a1a1a",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.M
+            colorDark: "#1a1a1a",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
           });
         } catch (e) {
           console.error('QR Gen Error:', e);
