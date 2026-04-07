@@ -956,10 +956,12 @@
         const qty = inCart ? inCart.qty : 0;
         const delay = Math.min(globalIndex * 0.05, 0.5);
 
+        const fallbackBg = getGradient(globalIndex);
+        const fallbackEmoji = getDishEmoji(item, cat);
         const visualContent = item.image_url
-          ? `<img class="dish-img" src="${item.image_url}" alt="${item.name}" loading="lazy" />`
-          : `<div class="dish-visual-bg" style="background: ${getGradient(globalIndex)}"></div>
-             <span class="dish-emoji">${getDishEmoji(item, cat)}</span>`;
+          ? `<img class="dish-img" src="${item.image_url}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'dish-visual-bg\\' style=\\'background:${fallbackBg.replace(/'/g, "")}\\'></div><span class=\\'dish-emoji\\'>${fallbackEmoji}</span>'" />`
+          : `<div class="dish-visual-bg" style="background: ${fallbackBg}"></div>
+             <span class="dish-emoji">${fallbackEmoji}</span>`;
 
         html += `
         <div class="dish-card" id="dish-${item.id}" style="animation-delay: ${delay}s">
