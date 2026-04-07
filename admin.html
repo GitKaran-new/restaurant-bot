@@ -10,7 +10,6 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap"
     rel="stylesheet">
   <script src="/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *,
     *::before,
@@ -754,35 +753,34 @@
 
     const CATEGORIES = ['starters', 'mains', 'breads', 'rice', 'drinks', 'desserts'];
 
-    // ── Supabase config for direct image uploads ──────────────
-    const SUPABASE_URL = 'https://zenobldexjhfudpcnamk.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_Nv-pFwVMt1m0-8o4kOFdXg_dJF9l5L4';
+    // ── Supabase config ──────────────────────────────────────
     const STORAGE_BUCKET = 'dish-images';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function sel() { return restaurants.find(r => r.id === selectedId); }
 
-    // ── IMAGE UPLOAD TO SUPABASE STORAGE ─────────────────────
+    // ── IMAGE UPLOAD via server API ─────────────────────────
     async function uploadImageToSupabase(file) {
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      // Convert file to base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      const { data, error } = await supabaseClient.storage
-        .from(STORAGE_BUCKET)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type
-        });
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file_data: base64,
+          file_name: file.name,
+          content_type: file.type
+        })
+      });
 
-      if (error) throw new Error(error.message);
-
-      // Get public URL
-      const { data: urlData } = supabaseClient.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(fileName);
-
-      return urlData.publicUrl;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      return data.url;
     }
 
     // ── Handle new item image selection ──────────────────────
