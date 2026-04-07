@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@400;500&display=swap"
     rel="stylesheet">
   <script src="/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *,
     *::before,
@@ -757,6 +758,7 @@
     const SUPABASE_URL = 'https://zenobldexjhfudpcnamk.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_Nv-pFwVMt1m0-8o4kOFdXg_dJF9l5L4';
     const STORAGE_BUCKET = 'dish-images';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function sel() { return restaurants.find(r => r.id === selectedId); }
 
@@ -764,26 +766,23 @@
     async function uploadImageToSupabase(file) {
       const ext = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const filePath = `${fileName}`;
 
-      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filePath}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': file.type,
-          'x-upsert': 'true'
-        },
-        body: file
-      });
+      const { data, error } = await supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Upload failed');
-      }
+      if (error) throw new Error(error.message);
 
-      // Return public URL
-      return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${filePath}`;
+      // Get public URL
+      const { data: urlData } = supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(fileName);
+
+      return urlData.publicUrl;
     }
 
     // ── Handle new item image selection ──────────────────────
