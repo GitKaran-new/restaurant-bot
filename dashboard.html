@@ -241,7 +241,7 @@
       border-radius: var(--radius-lg);
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: cardIn 0.4s ease backwards;
+      /* animation applied only on first render via JS */
     }
     .order-card:hover {
       border-color: var(--border-strong);
@@ -330,7 +330,7 @@
       border-radius: var(--radius-lg);
       overflow: hidden;
       transition: all 0.3s;
-      animation: cardIn 0.4s ease backwards;
+      /* animation applied only on first render via JS */
     }
     .kitchen-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
 
@@ -704,6 +704,8 @@
   let soundEnabled = true;
   let lastOrderCount = 0;
   let restaurantSlug = null;
+  let lastOrdersSnapshot = '';  // used to skip redundant re-renders
+  let isFirstRender = true;     // animate cards only on first render
   const TAX_RATE = 0.05;
 
   // ── READ URL ──────────────────────────────────────────────
@@ -782,8 +784,15 @@
       const newOrders = data.orders || [];
       if (newOrders.length > lastOrderCount) playNewOrderSound();
       lastOrderCount = newOrders.length;
+
+      // Only re-render if data actually changed
+      const snapshot = JSON.stringify(newOrders);
+      if (snapshot === lastOrdersSnapshot) return;
+      lastOrdersSnapshot = snapshot;
+
       orders = newOrders;
       renderAll();
+      isFirstRender = false;
     } catch(e) { console.error('Failed to fetch orders', e); }
   }
 
@@ -867,7 +876,7 @@
     }
 
     grid.innerHTML = filtered.map((o, i) => `
-      <div class="order-card ${o.status}" style="animation-delay:${i * 0.05}s">
+      <div class="order-card ${o.status}" style="${isFirstRender ? 'animation: cardIn 0.4s ease backwards; animation-delay:' + (i * 0.05) + 's' : ''}">
         <div class="status-bar"></div>
         <div class="card-header">
           <div class="card-header-left">
@@ -911,7 +920,7 @@
       return;
     }
     grid.innerHTML = active.map((o, idx) => `
-      <div class="kitchen-card ${o.status}" style="animation-delay:${idx * 0.06}s">
+      <div class="kitchen-card ${o.status}" style="${isFirstRender ? 'animation: cardIn 0.4s ease backwards; animation-delay:' + (idx * 0.06) + 's' : ''}">
         <div class="kitchen-header ${o.status}">
           <div>
             <div class="kitchen-table-info">Table ${o.table_number} · #${o.id}</div>
